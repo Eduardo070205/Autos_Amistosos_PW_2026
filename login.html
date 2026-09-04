@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso — Autos Amistosos</title>
+    <meta name="description" content="Ingresa a tu cuenta de Autos Amistosos para dar seguimiento a tu compra, financiamiento y citas de prueba de manejo.">
+    <link rel="icon" type="image/png" href="images/logo.png">
+    <link rel="stylesheet" href="css/login.css">
+</head>
+<body>
+
+    <main class="auth">
+        <div class="auth-card">
+
+            <!-- ---------- Panel de marca ---------- -->
+            <aside class="auth-brand">
+                <a class="brand-top" href="landing_page.html" aria-label="Autos Amistosos - Inicio">
+                    <img src="images/logo.png" alt="Logotipo de Autos Amistosos">
+                    <span>Autos Amistosos<small>Distribuidor autorizado</small></span>
+                </a>
+
+                <div class="brand-body">
+                    <h1>Bienvenido de vuelta</h1>
+                    <p>Accede a tu cuenta para seguir tu compra, tu financiamiento y tus citas de prueba de manejo.</p>
+
+                    <ul>
+                        <li>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                            Consulta el estado de tu factura de venta
+                        </li>
+                        <li>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                            Revisa tu plan de financiamiento y garantías
+                        </li>
+                        <li>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                            Agenda o reprograma tu prueba de manejo
+                        </li>
+                    </ul>
+
+                    <a class="back-link" href="landing_page.html">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+                        Volver al inicio
+                    </a>
+                </div>
+            </aside>
+
+            <!-- ---------- Panel del formulario ---------- -->
+            <section class="auth-form-wrap">
+                <div class="form-head">
+                    <h2>Iniciar sesión</h2>
+                    <p>Ingresa tus credenciales para continuar.</p>
+                </div>
+
+                <div class="form-alert" id="form-alert" role="alert"></div>
+
+                <form id="form-login" novalidate>
+                    <div class="field">
+                        <label for="f-email">Correo electrónico</label>
+                        <div class="input-shell">
+                            <span class="lead-ic">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+                            </span>
+                            <input type="email" id="f-email" name="email" placeholder="tucorreo@ejemplo.com" autocomplete="email" required>
+                        </div>
+                        <span class="field-error">Escribe un correo electrónico válido.</span>
+                    </div>
+
+                    <div class="field">
+                        <label for="f-pass">Contraseña</label>
+                        <div class="input-shell">
+                            <span class="lead-ic">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+                            </span>
+                            <input type="password" id="f-pass" name="password" class="has-toggle" placeholder="Tu contraseña" autocomplete="current-password" required>
+                            <button type="button" class="toggle-pass" aria-label="Mostrar contraseña"></button>
+                        </div>
+                        <span class="field-error">La contraseña debe tener al menos 6 caracteres.</span>
+                    </div>
+
+                    <div class="form-aux">
+                        <label class="remember">
+                            <input type="checkbox" name="remember">
+                            Recordarme
+                        </label>
+                        <a href="#">¿Olvidaste tu contraseña?</a>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Ingresar</button>
+                </form>
+
+                <div class="divider">o</div>
+
+                <a href="landing_page.html" class="btn btn-ghost">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h3l2-5h8l2 5h3M5 12v5h14v-5M7 17v2M17 17v2"/><circle cx="8" cy="14" r="1.2"/><circle cx="16" cy="14" r="1.2"/></svg>
+                    Ver catálogo sin iniciar sesión
+                </a>
+
+                <p class="signup-line">¿No tienes cuenta? <a href="#">Regístrate aquí</a></p>
+            </section>
+
+        </div>
+
+        <p class="auth-foot">&copy; 2026 Autos Amistosos. Todos los derechos reservados.</p>
+    </main>
+
+    <script src="scripts/login.js"></script>
+</body>
+</html>
