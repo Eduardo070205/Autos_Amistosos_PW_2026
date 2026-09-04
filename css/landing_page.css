@@ -607,9 +607,11 @@ section { scroll-margin-top: 90px; }
 /* =========================================================
    REVEAL ANIM
    ========================================================= */
+/* Sin JS: el contenido se muestra siempre. La animación de aparición
+   (clase .visible añadida por scroll) se reactivará al volver el script. */
 .reveal {
-    opacity: 0;
-    transform: translateY(26px);
+    opacity: 1;
+    transform: none;
     transition: opacity .7s var(--ease), transform .7s var(--ease);
 }
 .reveal.visible { opacity: 1; transform: none; }
