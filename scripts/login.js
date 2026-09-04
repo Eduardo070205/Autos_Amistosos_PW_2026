@@ -71,7 +71,7 @@
                 alertBox.textContent = "Acceso correcto. Redirigiendo...";
                 alertBox.className = "form-alert ok show";
             }
-            setTimeout(function () { window.location.href = "landing_page.html"; }, 900);
+            setTimeout(function () { window.location.href = "../landing_page.html"; }, 900);
         }, 700);
     });
 })();
