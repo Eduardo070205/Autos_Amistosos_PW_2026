@@ -8,8 +8,6 @@
     <link rel="stylesheet" href="../css/bootstrap-base.css">
     <link rel="stylesheet" href="../css/panel.css">
     <link rel="stylesheet" href="../css/agregar_modelo.css">
-    <script src="../../js/modelos-store.js" defer></script>
-    <script src="../../js/agregar_modelo.js" defer></script>
     <script src="../vendor/bootstrap/bootstrap.bundle.min.js" defer></script>
 </head>
 <body>
@@ -34,7 +32,7 @@
                 <div class="page-head">
                     <div><h1>Agregar nuevo modelo</h1><p>Completa la información y las características del vehículo.</p></div>
                 </div>
-                <form id="modelo-form" class="card" aria-describedby="form-note" method="POST" novalidate>
+                <form action="../../backend/scripts/modelos/modelos_altas_procesar.php" id="modelo-form" class="card" aria-describedby="form-note" method="POST" novalidate>
                     <div class="card-head"><h2>Información del modelo</h2><span class="required-note">Todos los campos son obligatorios</span></div>
                     <div class="card-body">
                         <fieldset>
