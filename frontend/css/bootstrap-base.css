@@ -1,0 +1,49 @@
+/* Bootstrap is kept in a layer so the existing visual theme takes precedence. */
+@layer bootstrap;
+@import url('../vendor/bootstrap/bootstrap.min.css') layer(bootstrap);
+
+:root {
+    --bs-primary: #b8992f;
+    --bs-primary-rgb: 184, 153, 47;
+    --bs-body-color: #2b2a22;
+    --bs-body-font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --bs-border-color: #e8e2d0;
+    --bs-border-radius: 10px;
+}
+
+/* Preserve the original typography and spacing above Bootstrap Reboot. */
+h1, h2, h3, h4, h5, h6 { font-weight: 700; line-height: inherit; }
+h1 { font-size: 2em; }
+h2 { font-size: 1.5em; }
+h3 { font-size: 1.17em; }
+h4 { font-size: 1em; }
+ul, ol { padding-left: 0; }
+button, input, select, textarea { font: inherit; }
+small { font-size: smaller; }
+legend { float: none; width: auto; }
+.card { display: block; }
+.btn {
+    --bs-btn-active-bg: #8a7420;
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-border-color: #8a7420;
+    --bs-btn-focus-shadow-rgb: 184, 153, 47;
+}
+.form-control, .form-select {
+    color: var(--ink, #2b2a22);
+    border-color: #b8b19e;
+}
+.form-control:focus, .form-select:focus {
+    border-color: #8a7420;
+    box-shadow: 0 0 0 .2rem rgba(184, 153, 47, .2);
+}
+.form-label { margin-bottom: 0; }
+.table {
+    --bs-table-bg: transparent;
+    --bs-table-color: #2b2a22;
+    --bs-table-border-color: #e8e2d0;
+    margin-bottom: 0;
+}
+.badge { font-weight: inherit; line-height: inherit; text-align: inherit; }
+@media (max-width: 960px) {
+    .nav-group.flex-column { flex-direction: row !important; }
+}

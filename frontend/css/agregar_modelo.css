@@ -1,0 +1,30 @@
+.topbar { justify-content: space-between; gap: 16px; }
+.content { width: 100%; max-width: 1200px; margin-inline: auto; }
+.required-note { font-size: .8rem; color: var(--muted); }
+fieldset { min-width: 0; border: 0; padding: 0; margin: 0 0 28px; }
+legend { font-size: .95rem; font-weight: 700; margin-bottom: 18px; }
+fieldset + fieldset { border-top: 1px solid var(--line); padding-top: 24px; }
+.model-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px 24px; }
+.model-field { display: flex; flex-direction: column; gap: 7px; }
+.model-field label { font-size: .88rem; font-weight: 600; }
+.model-field input { width: 100%; min-height: 46px; padding: 11px 13px; border: 1px solid #b8b19e; border-radius: 10px; background: var(--white); color: var(--ink); font: inherit; }
+.model-field input::placeholder { color: var(--muted); }
+.model-field input:focus-visible { outline: 3px solid var(--gold-glow); border-color: var(--gold-deep); }
+.model-field small, .model-note { font-size: .8rem; color: var(--muted); }
+.model-note { padding: 14px 16px; border-radius: 10px; background: var(--bg-soft); }
+.model-status { margin-top: 16px; padding: 14px 16px; border-left: 4px solid var(--ok); background: #eef5e8; color: #34551c; }
+.model-actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 12px; padding: 20px 24px; border-top: 1px solid var(--line); }
+@media (max-width: 960px) {
+    .app { grid-template-columns: 1fr; }
+    .sidebar { position: static; display: flex; width: auto; height: auto; transform: none; padding: 18px 20px; }
+    .sidebar .brand-top { padding-bottom: 14px; margin-bottom: 12px; }
+    .nav-group { display: flex; flex-wrap: wrap; margin-bottom: 0; }
+    .nav-title { display: none; }
+}
+@media (max-width: 600px) {
+    .model-grid { grid-template-columns: 1fr; }
+    .card-head { align-items: flex-start; flex-direction: column; gap: 6px; }
+    .model-actions { flex-direction: column-reverse; padding: 18px; }
+    .model-actions .btn { justify-content: center; }
+    .topbar { flex-wrap: wrap; height: auto; padding: 16px; }
+}

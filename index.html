@@ -5,8 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Autos Amistosos — Distribuidor de autos nuevos y seminuevos</title>
     <meta name="description" content="Autos Amistosos: distribuidor autorizado de autos nuevos. Pruebas de manejo, financiamiento a tu medida, personalización, trámites de placas y seguro, y seminuevos de intercambio.">
-    <link rel="icon" type="image/png" href="images/logo.png">
-    <link rel="stylesheet" href="css/landing_page.css">
+    <link rel="icon" type="image/png" href="frontend/images/logo.png">
+    <link rel="stylesheet" href="frontend/css/bootstrap-base.css">
+    <link rel="stylesheet" href="frontend/css/landing_page.css">
+    <script src="frontend/vendor/bootstrap/bootstrap.bundle.min.js" defer></script>
 </head>
 <body>
 
@@ -14,7 +16,7 @@
     <header class="site-header">
         <div class="container nav">
             <a class="brand" href="#inicio" aria-label="Autos Amistosos - Inicio">
-                <img src="images/logo.png" alt="Logotipo de Autos Amistosos">
+                <img src="frontend/images/logo.png" alt="Logotipo de Autos Amistosos">
                 <span>Autos Amistosos<small>Distribuidor autorizado</small></span>
             </a>
 
@@ -25,12 +27,12 @@
                 <li><a href="#seminuevos">Seminuevos</a></li>
                 <li><a href="#nosotros">Nosotros</a></li>
                 <li><a href="#contacto">Contacto</a></li>
-                <li><a href="pages/login.html">Iniciar sesión</a></li>
-                <li><a href="pages/registro.html">Crear cuenta</a></li>
+                <li><a href="frontend/pages/login.html">Iniciar sesión</a></li>
+                <li><a href="frontend/pages/registro.html">Crear cuenta</a></li>
             </ul>
 
             <div class="nav-cta">
-                <a href="#contacto" class="btn btn-outline">Prueba de manejo</a>
+                <a href="#contacto" class="btn btn-outline btn-outline-secondary">Prueba de manejo</a>
                 <button class="nav-toggle" id="nav-toggle" aria-label="Abrir menú" aria-expanded="false" aria-controls="nav-links">
                     <span></span><span></span><span></span>
                 </button>
@@ -55,7 +57,7 @@
                         Agenda tu prueba de manejo
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
                     </a>
-                    <a href="#nuevos" class="btn btn-outline">Ver catálogo</a>
+                    <a href="#nuevos" class="btn btn-outline btn-outline-secondary">Ver catálogo</a>
                 </div>
 
                 <div class="hero-badges">
@@ -76,7 +78,7 @@
 
             <aside class="hero-card reveal">
                 <div class="logo-wrap">
-                    <img src="images/logo.png" alt="Autos Amistosos">
+                    <img src="frontend/images/logo.png" alt="Autos Amistosos">
                 </div>
                 <h3>Todo en un solo lugar</h3>
                 <ul>
@@ -103,7 +105,7 @@
 
     <!-- ===================== STATS ===================== -->
     <section class="stats">
-        <div class="container stats-grid reveal">
+        <div class="container stats-grid reveal d-grid">
             <div class="stat"><div class="num">+1M USD</div><div class="label">En ventas anuales</div></div>
             <div class="stat"><div class="num">8</div><div class="label">Vendedores expertos a tu servicio</div></div>
             <div class="stat"><div class="num">1</div><div class="label">Vendedor dedicado por cliente</div></div>
@@ -124,7 +126,7 @@
                 </p>
             </div>
 
-            <div class="cards">
+            <div class="cards d-grid">
                 <article class="card reveal">
                     <div class="icon">
                         <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17h14M6 17l1.5-5A2 2 0 0 1 9.4 10.6h5.2a2 2 0 0 1 1.9 1.4L18 17M7 17v2M17 17v2M4 12h16"/><circle cx="7.5" cy="14.5" r="1"/><circle cx="16.5" cy="14.5" r="1"/></svg>
@@ -159,7 +161,7 @@
                 <p>Desde la prueba de manejo hasta que recoges tu auto listo y con papeles en regla.</p>
             </div>
 
-            <div class="cards">
+            <div class="cards d-grid">
                 <article class="card reveal">
                     <div class="icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h3l2-5h8l2 5h3M5 12v5h14v-5M7 17v2M17 17v2"/><circle cx="8" cy="14" r="1.2"/><circle cx="16" cy="14" r="1.2"/></svg></div>
                     <h3>Pruebas de manejo</h3>
@@ -337,26 +339,26 @@
                 <h3>Solicita tu cita</h3>
                 <p class="hint">Respuesta el mismo día hábil.</p>
 
-                <div class="form-row">
+                <div class="form-row d-grid">
                     <div class="field">
-                        <label for="nombre">Nombre completo</label>
-                        <input type="text" id="nombre" name="nombre" autocomplete="name" required>
+                        <label for="nombre" class="form-label">Nombre completo</label>
+                        <input type="text" id="nombre" name="nombre" autocomplete="name" required class="form-control">
                     </div>
                     <div class="field">
-                        <label for="telefono">Teléfono</label>
-                        <input type="tel" id="telefono" name="telefono" autocomplete="tel" required>
+                        <label for="telefono" class="form-label">Teléfono</label>
+                        <input type="tel" id="telefono" name="telefono" autocomplete="tel" required class="form-control">
                     </div>
                 </div>
 
                 <div class="field">
-                    <label for="email">Correo electrónico</label>
-                    <input type="email" id="email" name="email" autocomplete="email" required>
+                    <label for="email" class="form-label">Correo electrónico</label>
+                    <input type="email" id="email" name="email" autocomplete="email" required class="form-control">
                 </div>
 
-                <div class="form-row">
+                <div class="form-row d-grid">
                     <div class="field">
-                        <label for="interes">Me interesa</label>
-                        <select id="interes" name="interes">
+                        <label for="interes" class="form-label">Me interesa</label>
+                        <select id="interes" name="interes" class="form-select">
                             <option>Auto nuevo</option>
                             <option>Seminuevo de intercambio</option>
                             <option>Prueba de manejo</option>
@@ -365,14 +367,14 @@
                         </select>
                     </div>
                     <div class="field">
-                        <label for="modelo">Modelo / tipo</label>
-                        <input type="text" id="modelo" name="modelo" placeholder="Ej. SUV, sedán...">
+                        <label for="modelo" class="form-label">Modelo / tipo</label>
+                        <input type="text" id="modelo" name="modelo" placeholder="Ej. SUV, sedán..." class="form-control">
                     </div>
                 </div>
 
                 <div class="field">
-                    <label for="mensaje">Mensaje (opcional)</label>
-                    <textarea id="mensaje" name="mensaje" placeholder="Cuéntanos qué características buscas."></textarea>
+                    <label for="mensaje" class="form-label">Mensaje (opcional)</label>
+                    <textarea id="mensaje" name="mensaje" placeholder="Cuéntanos qué características buscas." class="form-control"></textarea>
                 </div>
 
                 <button type="submit" class="btn btn-primary">Enviar solicitud</button>
@@ -388,7 +390,7 @@
             <div class="footer-grid">
                 <div>
                     <div class="footer-brand">
-                        <img src="images/logo.png" alt="Autos Amistosos">
+                        <img src="frontend/images/logo.png" alt="Autos Amistosos">
                         <b>Autos Amistosos</b>
                     </div>
                     <p>Distribuidor autorizado de autos nuevos y seminuevos de intercambio. Trato cercano, precios negociables y trámites resueltos.</p>
