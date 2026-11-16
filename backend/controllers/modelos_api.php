@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../repositories/modelo_dao.php';
 require_once __DIR__ . '/../validaciones/validar_modelo.php';
-
+require_once __DIR__ . '/../services/modelo_servicio.php';
 
 
 header('Content-Type: application/json; charset=utf-8');
@@ -61,6 +61,7 @@ try {
 
     $pdo = require __DIR__ . '/../config/database/conexion_bd.php';
     $modeloDAO = new ModeloDAO($pdo);
+    $modeloServicio = new ModeloServicio($modeloDAO);
     if ($id !== null) {
         $modelo = $modeloDAO->consultarModeloID($id);
         if ($modelo === false) responder(['mensaje' => 'El modelo no existe.'], 404);
@@ -69,16 +70,16 @@ try {
         responder(['datos' => $id === null ? $modeloDAO->consultarModelos() : $modelo]);
     }
     if ($metodo === 'PUT') {
-        $modelo = new Modelo(
-            $datos['nombre_modelo'], (int) $datos['anio'], $datos['fabricante'],
-            (int) $datos['cilindros'], (int) $datos['puertas'], $datos['peso'],
-            (int) $datos['pasajeros'], $datos['color'], $datos['pais']
+        $resultado = [
+            'correcto' => $modeloServicio->actualizarModelo($id, $datos)
+        ];
+
+        responder(
+            $resultado,
+            $resultado['correcto'] ? 200 : 422
         );
-        $modelo->setIdModelo($id);
-        $resultado = ['correcto' => $modeloDAO->actualizarModelo($modelo)];
-        responder($resultado, $resultado['correcto'] ? 200 : 422);
     }
-    $correcto = $modeloDAO->eliminarModelo($id);
+    $correcto = $modeloServicio->eliminarModelo($id);
     responder(['correcto' => $correcto], $correcto ? 200 : 500);
 } catch (PDOException $e) {
     error_log('Error en API de modelos: ' . $e->getMessage());

@@ -30,4 +30,29 @@ class ModeloServicio
 
         return $this->repositorio->agregarModelo($modelo);
     }
+
+    // Recibe datos que ya pasaron la validación.
+    public function actualizarModelo(int $id, array $datos): bool
+    {
+        $modelo = new Modelo(
+            $datos['nombre_modelo'],
+            (int) $datos['anio'],
+            $datos['fabricante'],
+            (int) $datos['cilindros'],
+            (int) $datos['puertas'],
+            $datos['peso'],
+            (int) $datos['pasajeros'],
+            $datos['color'],
+            $datos['pais']
+        );
+
+        $modelo->setIdModelo($id);
+
+        return $this->repositorio->actualizarModelo($modelo);
+    }
+
+    public function eliminarModelo(int $id): bool
+    {
+        return $this->repositorio->eliminarModelo($id);
+    }
 }
