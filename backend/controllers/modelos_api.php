@@ -1,7 +1,10 @@
 <?php
 declare(strict_types=1);
 
-require_once __DIR__ . '/modelo_dao.php';
+require_once __DIR__ . '/../repositories/modelo_dao.php';
+require_once __DIR__ . '/../validaciones/validar_modelo.php';
+
+
 
 header('Content-Type: application/json; charset=utf-8');
 
@@ -29,55 +32,35 @@ try {
     $entrada = null;
     if ($metodo === 'PUT') {
         $entrada = json_decode(file_get_contents('php://input'), true);
-        if (!is_array($entrada)) responder(['mensaje' => 'Datos inválidos.'], 400);
+
+        if (!is_array($entrada)) {
+            responder(['mensaje' => 'Datos inválidos.'], 400);
+        }
+
         $datos = [];
-        foreach (['nombre_modelo', 'fabricante', 'anio', 'pais', 'cilindros', 'puertas', 'peso', 'pasajeros', 'color'] as $campo) {
-            $datos[$campo] = isset($entrada[$campo]) && is_string($entrada[$campo]) ? trim($entrada[$campo]) : '';
+
+        foreach ([
+            'nombre_modelo', 'fabricante', 'anio', 'pais',
+            'cilindros', 'puertas', 'peso', 'pasajeros', 'color'
+        ] as $campo) {
+            $datos[$campo] = isset($entrada[$campo])
+                && is_string($entrada[$campo])
+                ? trim($entrada[$campo])
+                : '';
         }
-        $errores = [];
-        $textos = [
-            'nombre_modelo' => 40,
-            'fabricante' => 30,
-            'pais' => 30,
-            'color' => 20,
-        ];
-        
-        foreach ($textos as $campo => $limite) {
-            $valor = $datos[$campo];
-            if ($valor === '' || !mb_check_encoding($valor, 'UTF-8')
-                || mb_strlen($valor, 'UTF-8') > $limite
-                || preg_match('/[\x00-\x1F\x7F]/u', $valor)) {
-                $errores[$campo] = "Ingresa un texto válido de hasta {$limite} caracteres.";
-            }
+
+        $errores = validarModelo($datos);
+
+        if ($errores !== []) {
+            responder([
+                'mensaje' => 'Revisa los campos.',
+                'errores' => $errores
+            ], 422);
         }
-        
-        // Rangos positivos compatibles con SMALLINT y TINYINT con signo.
-        $enteros = [
-            'anio' => [1, 32767],
-            'cilindros' => [0, 127],
-            'puertas' => [1, 127],
-            'pasajeros' => [1, 127],
-        ];
-        
-        foreach ($enteros as $campo => [$minimo, $maximo]) {
-            $valor = $datos[$campo];
-            if (!preg_match('/^[0-9]+$/D', $valor)
-                || (float) $valor < $minimo || (float) $valor > $maximo) {
-                $errores[$campo] = "Ingresa un número entero entre {$minimo} y {$maximo}.";
-            }
-        }
-        
-        // DECIMAL(7,2): hasta cinco dígitos enteros y dos decimales. El cero es válido.
-        if (!preg_match('/^[0-9]{1,5}(\.[0-9]{1,2})?$/D', $datos['peso'])) {
-            $errores['peso'] = 'Ingresa un peso entre 0 y 99999.99, con hasta dos decimales.';
-        }
-        
-        
-        
-        if ($errores !== []) responder(['mensaje' => 'Revisa los campos.', 'errores' => $errores], 422);
     }
 
-    $modeloDAO = new ModeloDAO();
+    $pdo = require __DIR__ . '/../config/database/conexion_bd.php';
+    $modeloDAO = new ModeloDAO($pdo);
     if ($id !== null) {
         $modelo = $modeloDAO->consultarModeloID($id);
         if ($modelo === false) responder(['mensaje' => 'El modelo no existe.'], 404);

@@ -2,7 +2,9 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../../validaciones/validar_modelo.php';
-require_once __DIR__ . '/../../controllers/modelo_dao.php';
+require_once __DIR__ . '/../../repositories/modelo_dao.php';
+require_once __DIR__ . '/../../services/modelo_servicio.php';
+
 session_start();
 $formulario = '../../../frontend/pages/agregar_modelo.php';
 
@@ -27,13 +29,11 @@ if ($errores !== []) {
     $_SESSION['datos_modelo'] = $datos;
 } else {
     try {
-        $modeloDAO = new ModeloDAO();
-        $modelo = new Modelo(
-            $datos['nombre_modelo'], (int) $datos['anio'], $datos['fabricante'],
-            (int) $datos['cilindros'], (int) $datos['puertas'], $datos['peso'],
-            (int) $datos['pasajeros'], $datos['color'], $datos['pais']
-        );
-        $res = $modeloDAO->agregarModelo($modelo);
+        $pdo = require __DIR__ . '/../../config/database/conexion_bd.php';
+        $modeloDAO = new ModeloDAO($pdo);
+        $modeloServicio = new ModeloServicio($modeloDAO);
+        
+        $res = $modeloServicio->agregarModelo($datos);
         $_SESSION['insercion_correcta'] = $res;
         if (!$res) {
             $_SESSION['datos_modelo'] = $datos;

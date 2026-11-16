@@ -3,14 +3,17 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../models/modelo.php';
+require_once __DIR__ . '/../contracts/modelo_escritura.php';
+require_once __DIR__ . '/../contracts/modelo_lectura.php';
 
-class ModeloDAO
+class ModeloDAO implements ModeloEscritura, ModeloLectura
 {
+
     private PDO $conexion;
 
-    public function __construct(?PDO $conexion = null)
+    public function __construct(PDO $conexion)
     {
-        $this->conexion = $conexion ?? require __DIR__ . '/../config/database/conexion_bd.php';
+        $this->conexion = $conexion;
     }
 
     // ---------------- ALTAS ----------------
