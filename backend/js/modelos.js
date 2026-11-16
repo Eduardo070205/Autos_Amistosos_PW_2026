@@ -94,22 +94,25 @@ function buildFilter(value = '') {
     render();
 }
 
-function reload() {
+async function reload() {
     try {
-        rows = window.modelosStore.read();
+        const response = await fetch('../../backend/controllers/modelos_api.php');
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.mensaje);
+        rows = result.datos;
         loadFailed = false;
         message.textContent = '';
     } catch {
         rows = [];
         loadFailed = true;
-        message.textContent = 'No se pudieron leer los datos del navegador. Revisa que el almacenamiento esté disponible.';
+        message.textContent = 'No se pudieron cargar los modelos. Revisa la conexi?n con el servidor y vuelve a cargar la p?gina.';
     }
     buildFilter(document.getElementById('filter-value')?.value || '');
 }
 
 function act(action, row) {
     if (action === 'Modificar') {
-        window.location.href = `agregar_modelo.html?id=${encodeURIComponent(row.ID_Modelo)}`;
+        window.location.href = `agregar_modelo.php?id=${encodeURIComponent(row.ID_Modelo)}`;
     } else if (action === 'Detalles') {
         const list = document.getElementById('model-details');
         list.replaceChildren();
@@ -133,18 +136,24 @@ by.addEventListener('change', () => buildFilter());
 document.getElementById('clear-filter').addEventListener('click', () => buildFilter());
 document.getElementById('cancel-delete').addEventListener('click', () => deleteDialog.close());
 deleteDialog.addEventListener('close', () => { pendingDelete = null; });
-document.getElementById('confirm-delete').addEventListener('click', () => {
+document.getElementById('confirm-delete').addEventListener('click', async () => {
     if (pendingDelete === null) return;
+    const button = document.getElementById('confirm-delete');
+    button.disabled = true;
     try {
-        window.modelosStore.write(window.modelosStore.read().filter((row) => row.ID_Modelo !== pendingDelete));
+        const response = await fetch('../../backend/controllers/modelos_api.php?id=' + encodeURIComponent(pendingDelete), { method: 'DELETE' });
+        const result = await response.json();
+        if (!response.ok || !result.correcto) throw new Error(result.mensaje);
         deleteDialog.close();
-        reload();
+        await reload();
         message.textContent = 'Modelo eliminado.';
         by.focus();
     } catch {
         deleteDialog.close();
         message.textContent = 'No se pudo eliminar el modelo. Intenta de nuevo.';
+    } finally {
+        button.disabled = false;
     }
 });
-window.addEventListener('storage', reload);
+window.addEventListener('pageshow', (event) => { if (event.persisted) reload(); });
 reload();

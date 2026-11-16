@@ -10,8 +10,6 @@ class ModeloDAO
 
     public function __construct(?PDO $conexion = null)
     {
-        // El archivo actual devuelve un objeto PDO, no una clase de conexión.
-        // Se usa require para que varias instancias del DAO reciban un PDO.
         $this->conexion = $conexion ?? require __DIR__ . '/../config/database/conexion_bd.php';
     }
 
