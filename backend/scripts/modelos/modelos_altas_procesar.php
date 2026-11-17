@@ -1,12 +1,14 @@
 <?php
 declare(strict_types=1);
 
+// Alta: recibir POST, validar datos, llamar al servicio y regresar con avisos de sesion.
+
 require_once __DIR__ . '/../../validaciones/validar_modelo.php';
 require_once __DIR__ . '/../../repositories/modelo_dao.php';
 require_once __DIR__ . '/../../services/modelo_servicio.php';
 
 session_start();
-$formulario = '../../../frontend/pages/agregar_modelo.php';
+$formulario = '../../../frontend/pages/formulario_modelo.php';
 
 if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
     header('Allow: POST');
@@ -45,5 +47,11 @@ if ($errores !== []) {
         $_SESSION['error_guardado'] = 'No se pudo registrar el modelo. Revisa la conexi?n e intenta de nuevo.';
     }
 }
+if ($_SESSION['insercion_correcta']) {
+    $_SESSION['mensaje_modelo'] = 'Modelo registrado correctamente.';
+} else {
+    $_SESSION['formulario_modelo'] = ['id' => null, 'modo' => 'alta', 'datos' => $datos, 'errores' => $_SESSION['errores_modelo'] ?? [], 'error' => $_SESSION['error_guardado'] ?? null];
+}
+unset($_SESSION['insercion_correcta'], $_SESSION['errores_modelo'], $_SESSION['datos_modelo'], $_SESSION['error_guardado']);
 header('Location: ' . $formulario, true, 303);
 exit;

@@ -1,5 +1,6 @@
 <?php
 
+// Funcion compartida por altas y cambios. Recibe campos normalizados y devuelve errores.
 function validarModelo(array $datos): array
 {
     $errores = [];
@@ -41,5 +42,6 @@ function validarModelo(array $datos): array
         $errores['peso'] = 'Ingresa un peso entre 0 y 99999.99, con hasta dos decimales.';
     }
 
+    // El controlador decide como mostrar estos errores: esta funcion no usa sesiones ni SQL.
     return $errores;
 }

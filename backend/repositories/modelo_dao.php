@@ -6,11 +6,13 @@ require_once __DIR__ . '/../models/modelo.php';
 require_once __DIR__ . '/../contracts/modelo_escritura.php';
 require_once __DIR__ . '/../contracts/modelo_lectura.php';
 
+// Implementacion con SQL de los contratos de lectura y escritura.
 class ModeloDAO implements ModeloEscritura, ModeloLectura
 {
 
     private PDO $conexion;
 
+    // Usar la conexion recibida; permite probar con otro PDO sin cambiar la clase.
     public function __construct(PDO $conexion)
     {
         $this->conexion = $conexion;
@@ -47,8 +49,10 @@ class ModeloDAO implements ModeloEscritura, ModeloLectura
     // ---------------- BAJAS ----------------
     public function eliminarModelo(int $idModelo): bool
     {
+        // WHERE limita la baja al ID indicado. El ? se envia separado del SQL.
         $sql = 'DELETE FROM modelos WHERE ID_Modelo = ?';
         $stmt = $this->conexion->prepare($sql);
+        // true indica ejecucion correcta; no garantiza por si solo que existiera una fila.
         return $stmt->execute([$idModelo]);
     }
 
@@ -59,6 +63,7 @@ class ModeloDAO implements ModeloEscritura, ModeloLectura
             throw new InvalidArgumentException('Se necesita el ID para actualizar el modelo.');
         }
 
+        // Cambiar los campos del modelo indicado, manteniendo su identificador.
         $sql = 'UPDATE modelos SET Nombre_Modelo = ?, `Año_Modelo` = ?,
             Fabricante = ?, Numero_Cilindros = ?, Numero_Puertas = ?, Peso_KG = ?,
             Capacidad_Pasajeros = ?, Color_Base = ?, Pais_Fabricacion = ?
@@ -75,6 +80,7 @@ class ModeloDAO implements ModeloEscritura, ModeloLectura
             $modelo->getCapacidadPasajeros(),
             $modelo->getColorBase(),
             $modelo->getPaisFabricacion(),
+            // Este ultimo valor corresponde al ? del WHERE, no a un campo del SET.
             $modelo->getIdModelo(),
         ]);
     }
@@ -82,12 +88,13 @@ class ModeloDAO implements ModeloEscritura, ModeloLectura
     // ---------------- CONSULTAS ----------------
     public function consultarModelos(): array
     {
-        $sql = 'SELECT ID_Modelo, Nombre_Modelo, Fabricante, `Año_Modelo`, Color_Base
+        $sql = 'SELECT *
             FROM modelos ORDER BY ID_Modelo DESC';
         return $this->conexion->query($sql)->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /** Devuelve todos los campos o false si el ID no existe. */
+    // Se usa para cargar el formulario y comprobar que el registro exista.
     public function consultarModeloID(int $idModelo)
     {
         $sql = 'SELECT * FROM modelos WHERE ID_Modelo = ?';

@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
 
+// Entidad: conserva los datos del vehiculo. Los getters leen y los setters actualizan atributos; no ejecuta SQL.
+
 /** Representa un registro de la tabla modelos. */
 class Modelo
 {

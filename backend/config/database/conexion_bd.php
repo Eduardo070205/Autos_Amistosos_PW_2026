@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
 
+// Crear PDO para MySQL y devolverlo a quien incluya este archivo. No ejecuta operaciones del catalogo.
+
 // Valores de configuración MySQL
 $host = getenv('DB_HOST') ?: 'localhost';
 $puerto = getenv('DB_PORT') ?: '3306';

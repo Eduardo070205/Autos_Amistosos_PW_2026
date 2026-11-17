@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 
+// Contrato: declara operaciones disponibles; el DAO contiene la implementacion SQL.
 interface ModeloLectura
 {
     public function consultarModelos(): array;

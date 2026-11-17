@@ -1,13 +1,9 @@
 <?php
 declare(strict_types=1);
 
+// Endpoint de solo lectura JSON. Las escrituras se procesan en scripts/modelos mediante POST.
 require_once __DIR__ . '/../repositories/modelo_dao.php';
-require_once __DIR__ . '/../validaciones/validar_modelo.php';
-require_once __DIR__ . '/../services/modelo_servicio.php';
-
-
 header('Content-Type: application/json; charset=utf-8');
-
 function responder(array $datos, int $codigo = 200): void
 {
     http_response_code($codigo);
@@ -15,73 +11,20 @@ function responder(array $datos, int $codigo = 200): void
     exit;
 }
 
-$metodo = $_SERVER['REQUEST_METHOD'] ?? '';
-if (!in_array($metodo, ['GET', 'PUT', 'DELETE'], true)) {
-    header('Allow: GET, PUT, DELETE');
-    responder(['mensaje' => 'Método no permitido.'], 405);
-}
 
-$id = null;
-if (isset($_GET['id'])) {
-    $id = filter_var($_GET['id'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
-    if ($id === false) responder(['mensaje' => 'ID inválido.'], 400);
+if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'GET') {
+    header('Allow: GET');
+    responder(['mensaje' => 'Esta API solo permite consultas.'], 405);
 }
-if ($metodo !== 'GET' && $id === null) responder(['mensaje' => 'Falta el ID.'], 400);
-
+$id = isset($_GET['id']) ? filter_var($_GET['id'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]) : null;
+if ($id === false) responder(['mensaje' => 'ID inválido.'], 400);
 try {
-    $entrada = null;
-    if ($metodo === 'PUT') {
-        $entrada = json_decode(file_get_contents('php://input'), true);
-
-        if (!is_array($entrada)) {
-            responder(['mensaje' => 'Datos inválidos.'], 400);
-        }
-
-        $datos = [];
-
-        foreach ([
-            'nombre_modelo', 'fabricante', 'anio', 'pais',
-            'cilindros', 'puertas', 'peso', 'pasajeros', 'color'
-        ] as $campo) {
-            $datos[$campo] = isset($entrada[$campo])
-                && is_string($entrada[$campo])
-                ? trim($entrada[$campo])
-                : '';
-        }
-
-        $errores = validarModelo($datos);
-
-        if ($errores !== []) {
-            responder([
-                'mensaje' => 'Revisa los campos.',
-                'errores' => $errores
-            ], 422);
-        }
-    }
-
     $pdo = require __DIR__ . '/../config/database/conexion_bd.php';
-    $modeloDAO = new ModeloDAO($pdo);
-    $modeloServicio = new ModeloServicio($modeloDAO);
-    if ($id !== null) {
-        $modelo = $modeloDAO->consultarModeloID($id);
-        if ($modelo === false) responder(['mensaje' => 'El modelo no existe.'], 404);
-    }
-    if ($metodo === 'GET') {
-        responder(['datos' => $id === null ? $modeloDAO->consultarModelos() : $modelo]);
-    }
-    if ($metodo === 'PUT') {
-        $resultado = [
-            'correcto' => $modeloServicio->actualizarModelo($id, $datos)
-        ];
-
-        responder(
-            $resultado,
-            $resultado['correcto'] ? 200 : 422
-        );
-    }
-    $correcto = $modeloServicio->eliminarModelo($id);
-    responder(['correcto' => $correcto], $correcto ? 200 : 500);
+    $dao = new ModeloDAO($pdo);
+    $datos = $id === null ? $dao->consultarModelos() : $dao->consultarModeloID($id);
+    if ($datos === false) responder(['mensaje' => 'El modelo no existe.'], 404);
+    responder(['datos' => $datos]);
 } catch (PDOException $e) {
-    error_log('Error en API de modelos: ' . $e->getMessage());
-    responder(['mensaje' => 'No se pudo completar la operación en la base de datos.'], 500);
+    error_log($e->getMessage());
+    responder(['mensaje' => 'No se pudieron consultar los modelos.'], 500);
 }

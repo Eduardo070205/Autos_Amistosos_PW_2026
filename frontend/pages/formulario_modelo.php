@@ -1,11 +1,59 @@
 <?php
 declare(strict_types=1);
+require_once __DIR__ . '/../../backend/repositories/modelo_dao.php';
 session_start();
-$datos = $_SESSION['datos_modelo'] ?? [];
-$errores = $_SESSION['errores_modelo'] ?? [];
-$correcto = $_SESSION['insercion_correcta'] ?? false;
-$errorGuardado = $_SESSION['error_guardado'] ?? null;
-unset($_SESSION['datos_modelo'], $_SESSION['errores_modelo'], $_SESSION['insercion_correcta'], $_SESSION['error_guardado']);
+// Sin ID se muestra un alta; con ID se consultan los datos para modificar.
+$id = null;
+$modo = 'alta';
+$datos = [];
+$errores = [];
+$errorGuardado = null;
+// Leer el aviso del POST anterior y retirarlo para no repetirlo al recargar.
+$correcto = $_SESSION['mensaje_modelo'] ?? null;
+unset($_SESSION['mensaje_modelo']);
+$disponible = true;
+// GET solo carga informacion: no ejecuta UPDATE ni DELETE.
+if (isset($_GET['id'])) {
+    $id = filter_var($_GET['id'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+    $modo = ($_GET['accion'] ?? '') === 'eliminar' ? 'baja' : 'cambio';
+    if ($id === false) {
+        http_response_code(400);
+        $errorGuardado = 'ID inválido.';
+        $disponible = false;
+    } else {
+        try {
+            $pdo = require __DIR__ . '/../../backend/config/database/conexion_bd.php';
+            $dao = new ModeloDAO($pdo);
+            $registro = $dao->consultarModeloID($id);
+            if ($registro === false) {
+                http_response_code(404);
+                $errorGuardado = 'El modelo no existe.';
+                $disponible = false;
+            } else {
+                // Relacionar los nombres del formulario con las columnas de MySQL.
+                $campos = ['nombre_modelo' => 'Nombre_Modelo', 'anio' => 'Año_Modelo', 'fabricante' => 'Fabricante', 'cilindros' => 'Numero_Cilindros', 'puertas' => 'Numero_Puertas', 'peso' => 'Peso_KG', 'pasajeros' => 'Capacidad_Pasajeros', 'color' => 'Color_Base', 'pais' => 'Pais_Fabricacion'];
+                foreach ($campos as $campo => $columna) $datos[$campo] = $registro[$columna];
+            }
+        } catch (PDOException $e) {
+            error_log($e->getMessage());
+            http_response_code(500);
+            $errorGuardado = 'No se pudo cargar el modelo.';
+            $disponible = false;
+        }
+    }
+}
+// Los avisos se consumen únicamente en el formulario al que pertenecen.
+if (isset($_SESSION['formulario_modelo']) && $_SESSION['formulario_modelo']['id'] === $id && $_SESSION['formulario_modelo']['modo'] === $modo) {
+    $aviso = $_SESSION['formulario_modelo'];
+    $datos = $aviso['datos'] ?? $datos;
+    $errores = $aviso['errores'] ?? [];
+    $errorGuardado = $aviso['error'] ?? $errorGuardado;
+    unset($_SESSION['formulario_modelo']);
+}
+$titulo = $modo === 'alta' ? 'Agregar modelo' : ($modo === 'cambio' ? 'Modificar modelo' : 'Eliminar modelo');
+// El action del formulario apunta al procesador PHP correspondiente al modo.
+$procesador = $modo === 'alta' ? 'modelos_altas_procesar.php' : ($modo === 'cambio' ? 'modelos_cambios_procesar.php' : 'modelos_bajas_procesar.php');
+// Escapar al imprimir evita interpretar texto guardado como etiquetas HTML.
 function escapar($valor): string {
     return htmlspecialchars((string) $valor, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 }
@@ -15,13 +63,12 @@ function escapar($valor): string {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agregar modelo — ABCC · Autos Amistosos</title>
+    <title><?= escapar($titulo) ?> - Autos Amistosos</title>
     <link rel="icon" type="image/png" href="../images/logo.png">
     <link rel="stylesheet" href="../css/bootstrap-base.css">
     <link rel="stylesheet" href="../css/panel.css">
     <link rel="stylesheet" href="../css/agregar_modelo.css">
     <script src="../vendor/bootstrap/bootstrap.bundle.min.js" defer></script>
-    <script src="../../backend/js/editar_modelo.js" defer></script>
 </head>
 <body>
     <div class="app">
@@ -33,17 +80,17 @@ function escapar($valor): string {
             <nav class="nav-group nav flex-column" aria-label="Navegación principal">
                 <p class="nav-title">General</p>
                 <a class="nav-link" href="panel.html">Panel principal</a>
-                <a class="nav-link active" href="modelos.html">Modelos</a>
+                <a class="nav-link active" href="modelos.php">Modelos</a>
             </nav>
         </aside>
         <div class="main">
             <header class="topbar">
-                <div class="page-id"><small>ABCC / Modelos</small><b>Agregar modelo</b></div>
-                <a class="btn btn-ghost btn-outline-secondary" href="modelos.html">Volver a modelos</a>
+                <div class="page-id"><small>ABCC / Modelos</small><b><?= escapar($titulo) ?></b></div>
+                <a class="btn btn-ghost btn-outline-secondary" href="modelos.php">Volver a modelos</a>
             </header>
             <main class="content">
                 <?php if ($correcto): ?>
-                    <div class="alert alert-success" role="status">Modelo registrado correctamente.</div>
+                    <div class="alert alert-success" role="status"><?= escapar($correcto) ?></div>
                 <?php endif; ?>
                 <?php foreach ($errores as $mensaje): ?>
                     <div class="alert alert-danger" role="alert"><?= escapar($mensaje) ?></div>
@@ -52,9 +99,18 @@ function escapar($valor): string {
                     <div class="alert alert-danger" role="alert"><?= escapar($errorGuardado) ?></div>
                 <?php endif; ?>
                 <div class="page-head">
-                    <div><h1>Agregar nuevo modelo</h1><p>Completa la información y las características del vehículo.</p></div>
+                    <div><h1><?= escapar($titulo) ?></h1><p>Completa la información y las características del vehículo.</p></div>
                 </div>
-                <form action="../../backend/scripts/modelos/modelos_altas_procesar.php" id="modelo-form" class="card" method="POST">
+                <!-- El navegador envia POST directamente a PHP; no se guarda mediante fetch. -->
+                <form action="../../backend/scripts/modelos/<?= escapar($procesador) ?>" id="modelo-form" class="card" method="POST">
+                    <?php if ($id !== null && $id !== false): ?>
+                        <!-- El servidor valida este ID otra vez: un campo oculto se puede alterar. -->
+                        <input type="hidden" name="id" value="<?= escapar($id) ?>">
+                    <?php endif; ?>
+                    <?php if ($modo === 'baja'): ?>
+                        <div class="alert alert-warning">Confirma la eliminación de este modelo. Esta acción no se puede deshacer.</div>
+                    <?php endif; ?>
+                    <fieldset <?= (!$disponible || $modo === 'baja') ? 'disabled' : '' ?>>
                     <div class="card-head"><h2>Información del modelo</h2><span class="required-note">Todos los campos son obligatorios</span></div>
                     <div class="card-body">
                         <fieldset>
@@ -79,9 +135,10 @@ function escapar($valor): string {
                     
                         <p id="form-status" class="model-status" role="status" tabindex="-1" hidden></p>
                     </div>
+                    </fieldset>
                     <div class="model-actions">
-                        <button class="btn btn-ghost btn-outline-secondary" type="reset">Limpiar formulario</button>
-                        <button class="btn btn-primary" type="submit">Guardar modelo</button>
+                        <?php if ($modo !== 'baja'): ?><button class="btn btn-ghost btn-outline-secondary" type="reset">Restablecer formulario</button><?php endif; ?>
+                        <button class="btn <?= $modo === 'baja' ? 'btn-danger' : 'btn-primary' ?>" type="submit" <?= !$disponible ? 'disabled' : '' ?>><?= $modo === 'baja' ? 'Confirmar eliminación' : 'Guardar modelo' ?></button>
                     </div>
                 </form>
             </main>

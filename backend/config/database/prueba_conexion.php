@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
 
+// Diagnostico manual de conexion. No forma parte del flujo normal de altas, cambios o bajas.
+
 header('Content-Type: text/plain; charset=utf-8');
 
 try {
