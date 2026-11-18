@@ -10,5 +10,5 @@ interface VehiculoEscritura
 
     public function actualizarVehiculo(Vehiculo $vehiculo): bool;
 
-    public function eliminarVehiculo(int $idVehiculo): bool;
+    public function eliminarVehiculo(string $idVehiculo): bool;
 }

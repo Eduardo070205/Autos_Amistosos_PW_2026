@@ -7,7 +7,7 @@ interface VehiculoLectura
     public function consultarVehiculos(): array;
 
     // Devuelve un registro o false si no existe.
-    public function consultarVehiculoID(int $idVehiculo);
+    public function consultarVehiculoID(string $idVehiculo);
 
     public function consultarVehiculosBusqueda(
         string $criterio,
