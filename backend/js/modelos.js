@@ -1,32 +1,32 @@
 'use strict';
 
-const avisoExito = document.querySelector('[data-aviso-exito]');
-if (avisoExito) {
+const avisoExito = u('[data-aviso-exito]');
+if (avisoExito.length) {
     setTimeout(() => avisoExito.remove(), 5000);
 }
 
 // Bootstrap abre la advertencia; PHP procesa la baja al confirmar el formulario.
-const deleteModal = document.getElementById('eliminar-modelo-modal');
-const deleteId = document.getElementById('eliminar-modelo-id');
-const confirmDelete = document.getElementById('confirmar-eliminacion');
+const deleteModal = u('#eliminar-modelo-modal');
+const deleteId = u('#eliminar-modelo-id').first();
+const confirmDelete = u('#confirmar-eliminacion').first();
 // Copiar ID y nombre del boton al modal. Esto prepara la confirmacion, no elimina.
-deleteModal.addEventListener('show.bs.modal', (event) => {
+deleteModal.on('show.bs.modal', (event) => {
     const button = event.relatedTarget;
     deleteId.value = button?.dataset.id || '';
     confirmDelete.disabled = !/^[1-9]\d*$/.test(deleteId.value);
-    document.getElementById('eliminar-modelo-mensaje').textContent = `¿Quieres eliminar el modelo ${button?.dataset.nombre || ''}?`;
+    u('#eliminar-modelo-mensaje').text(`¿Quieres eliminar el modelo ${button?.dataset.nombre || ''}?`);
 });
 // Dejar el foco en Cancelar para que confirmar sea una decision explicita.
-deleteModal.addEventListener('shown.bs.modal', () => {
-    document.getElementById('cancelar-eliminacion').focus();
+deleteModal.on('shown.bs.modal', () => {
+    u('#cancelar-eliminacion').first().focus();
 });
 // Limpiar el ID al cerrar para no reutilizar accidentalmente el registro anterior.
-deleteModal.addEventListener('hidden.bs.modal', () => {
+deleteModal.on('hidden.bs.modal', () => {
     deleteId.value = '';
     confirmDelete.disabled = true;
 });
 // Comprobar el ID antes del envio nativo POST y evitar repetir clics al confirmar.
-document.getElementById('eliminar-modelo-form').addEventListener('submit', (event) => {
+u('#eliminar-modelo-form').on('submit', (event) => {
     if (!/^[1-9]\d*$/.test(deleteId.value)) event.preventDefault();
     else confirmDelete.disabled = true;
 });
@@ -68,10 +68,10 @@ function matchesNumericOption(value, query) {
     return number >= min && number <= max;
 }
 // PHP crea las filas; JavaScript solo filtra y muestra los detalles.
-const by = document.getElementById('buscar-por');
-const container = document.getElementById('filter-container');
-const detailsDialog = document.getElementById('details-dialog');
-const entries = [...document.querySelectorAll('#model-rows tr[data-modelo]')].map(element => ({element, data: JSON.parse(element.dataset.modelo)}));
+const by = u('#buscar-por').first();
+const container = u('#filter-container').first();
+const detailsDialog = u('#details-dialog').first();
+const entries = u('#model-rows tr[data-modelo]').nodes.map(element => ({element, data: JSON.parse(element.dataset.modelo)}));
 const rows = entries.map(entry => entry.data);
 const normalize = value => String(value ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('es').trim();
 const filterFields = [['todos', 'Todos los campos', 'text'], ...fields];
@@ -79,7 +79,7 @@ filterFields.forEach(([key,label]) => by.add(new Option(label,key)));
 
 // Mostrar u ocultar filas ya creadas por PHP; no enviar consultas ni cambiar MySQL.
 function render() {
-    const control = document.getElementById('filter-value');
+    const control = u('#filter-value').first();
     const query = control.value.trim();
     const mode = filterFields.find(([key]) => key === by.value)[2];
     let visible = 0;
@@ -91,24 +91,20 @@ function render() {
         element.hidden = !matches;
         if (matches) visible++;
     });
-    const empty = document.getElementById('empty-models');
+    const empty = u('#empty-models').first();
     empty.hidden = visible > 0;
     empty.firstElementChild.textContent = rows.length ? 'No hay coincidencias.' : 'No hay modelos registrados.';
-    document.getElementById('results').textContent = visible + ' de ' + rows.length + ' modelos';
+    u('#results').text(visible + ' de ' + rows.length + ' modelos');
 }
 
 // Cambiar el control de busqueda segun el campo elegido.
 function buildFilter(value = '') {
     const [key, label, mode] = filterFields.find(([key]) => key === by.value);
-    const caption = document.createElement('label');
-    caption.htmlFor = 'filter-value';
-    caption.textContent = label;
+    const caption = u('<label>').attr('for', 'filter-value').addClass('form-label').text(label);
     const isCombo = mode !== 'text';
-    const control = document.createElement(isCombo ? 'select' : 'input');
-    control.id = 'filter-value';
-    control.setAttribute('aria-controls', 'model-rows');
-    control.className = isCombo ? 'form-select' : 'form-control';
-    caption.className = 'form-label';
+    const control = u(isCombo ? '<select>' : '<input>')
+        .attr({id: 'filter-value', 'aria-controls': 'model-rows'})
+        .addClass(isCombo ? 'form-select' : 'form-control').first();
     if (isCombo) {
         control.add(new Option('Todos', ''));
         predefinedOptions[key].forEach(([value, text]) => control.add(new Option(text, value)));
@@ -119,31 +115,27 @@ function buildFilter(value = '') {
     }
     control.value = value;
     if (isCombo && control.selectedIndex < 0) control.value = '';
-    control.addEventListener('input', render);
-    control.addEventListener('change', render);
-    container.replaceChildren(caption, control);
+    u(control).on('input change', render);
+    u(container).empty().append([caption.first(), control]);
     render();
 }
 
 
 // Los detalles se muestran con textContent, sin interpretar los valores como HTML.
 entries.forEach(({element, data: row}) => {
-    element.querySelector('[data-detalles]').addEventListener('click', () => {
-        const list = document.getElementById('model-details');
-        list.replaceChildren();
+    u(element).find('[data-detalles]').on('click', () => {
+        const list = u('#model-details').empty();
         [fields[9], ...fields.slice(0, 9)].forEach(([key, label]) => {
-            const dt = document.createElement('dt');
-            const dd = document.createElement('dd');
-            dt.textContent = label;
-            dd.textContent = key === 'Peso_KG' ? `${Number(row[key]).toFixed(2)} kg` : row[key];
-            list.append(dt, dd);
+            const dt = u('<dt>').text(label);
+            const dd = u('<dd>').text(key === 'Peso_KG' ? `${Number(row[key]).toFixed(2)} kg` : row[key]);
+            list.append([dt.first(), dd.first()]);
         });
         detailsDialog.showModal();
     });
 });
-by.addEventListener('change', () => buildFilter());
-document.getElementById('clear-filter').addEventListener('click', () => {
+u(by).on('change', () => buildFilter());
+u('#clear-filter').on('click', () => {
     buildFilter();
-    document.getElementById('filter-value').focus();
+    u('#filter-value').first().focus();
 });
 buildFilter();

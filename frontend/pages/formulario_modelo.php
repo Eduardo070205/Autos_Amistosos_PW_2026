@@ -66,23 +66,15 @@ function escapar($valor): string {
     <title><?= escapar($titulo) ?> - Autos Amistosos</title>
     <link rel="icon" type="image/png" href="../images/logo.png">
     <link rel="stylesheet" href="../css/bootstrap-base.css">
+    <link rel="stylesheet" href="../vendor/fontawesome/css/fontawesome.min.css">
+    <link rel="stylesheet" href="../vendor/fontawesome/css/solid.min.css">
     <link rel="stylesheet" href="../css/panel.css">
     <link rel="stylesheet" href="../css/agregar_modelo.css">
     <script src="../vendor/bootstrap/bootstrap.bundle.min.js" defer></script>
 </head>
 <body>
     <div class="app">
-        <aside class="sidebar" id="sidebar">
-            <a class="brand-top" href="../../index.html">
-                <img src="../images/logo.png" alt="Logotipo de Autos Amistosos">
-                <span>ABCC<small>Autos Amistosos</small></span>
-            </a>
-            <nav class="nav-group nav flex-column" aria-label="Navegación principal">
-                <p class="nav-title">General</p>
-                <a class="nav-link" href="panel.html">Panel principal</a>
-                <a class="nav-link active" href="modelos.php">Modelos</a>
-            </nav>
-        </aside>
+        <?php $moduloActivo = 'modelos'; require __DIR__ . '/menu_lateral.php'; ?>
         <div class="main">
             <header class="topbar">
                 <div class="page-id"><small>ABCC / Modelos</small><b><?= escapar($titulo) ?></b></div>

@@ -137,7 +137,7 @@ a { color: inherit; text-decoration: none; }
     color: rgba(255, 255, 255, .82);
     transition: background .2s var(--ease), color .2s var(--ease);
 }
-.nav-link svg { flex: none; opacity: .9; }
+.sidebar .nav-link .fa-solid { flex: none; font-size: 1rem; opacity: .9; }
 .nav-link:hover { background: rgba(255, 255, 255, .08); color: var(--white); }
 .nav-link.active {
     background: var(--gold);

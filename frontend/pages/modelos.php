@@ -18,22 +18,18 @@
     <title>Modelos — ABCC · Autos Amistosos</title>
     <link rel="icon" type="image/png" href="../images/logo.png">
     <link rel="stylesheet" href="../css/bootstrap-base.css">
+    <link rel="stylesheet" href="../vendor/fontawesome/css/fontawesome.min.css">
+    <link rel="stylesheet" href="../vendor/fontawesome/css/solid.min.css">
     <link rel="stylesheet" href="../css/panel.css">
     <link rel="stylesheet" href="../css/agregar_modelo.css">
     <link rel="stylesheet" href="../css/modelos.css?v=<?= filemtime(__DIR__ . '/../css/modelos.css') ?>">
+    <script src="../vendor/umbrella/umbrella.min.js" defer></script>
     <script src="../../backend/js/modelos.js?v=<?= filemtime(__DIR__ . '/../../backend/js/modelos.js') ?>" defer></script>
     <script src="../vendor/bootstrap/bootstrap.bundle.min.js" defer></script>
 </head>
 <body>
     <div class="app">
-        <aside class="sidebar">
-            <a class="brand-top" href="../../index.html"><img src="../images/logo.png" alt="Autos Amistosos"><span>ABCC<small>Autos Amistosos</small></span></a>
-            <nav class="nav-group nav flex-column" aria-label="Navegación principal">
-                <p class="nav-title">General</p>
-                <a class="nav-link" href="panel.html">Panel principal</a>
-                <a class="nav-link active" href="modelos.php" aria-current="page">Modelos</a>
-            </nav>
-        </aside>
+        <?php $moduloActivo = 'modelos'; require __DIR__ . '/menu_lateral.php'; ?>
         <div class="main">
             <header class="topbar"><div class="page-id"><small>ABCC / Catálogo</small><b>Modelos</b></div><a class="btn btn-ghost btn-outline-secondary" href="panel.html">Volver al panel</a></header>
             <main class="content">
