@@ -17,7 +17,7 @@
                     Modelos
 
                 </a>
-                <a class="nav-link<?= $moduloActivo === 'inventario' ? ' active' : '' ?>" href="vehiculos.php"<?= $moduloActivo === 'inventario' ? ' aria-current="location"' : '' ?>>
+                <a class="nav-link<?= $moduloActivo === 'vehiculos' ? ' active' : '' ?>" href="vehiculos.php"<?= $moduloActivo === 'inventario' ? ' aria-current="location"' : '' ?>>
                     <i class="fa-solid fa-car-side fa-fw" aria-hidden="true"></i>
                     Vehículos
                     <span class="badge">148</span>

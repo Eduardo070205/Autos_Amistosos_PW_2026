@@ -14,10 +14,10 @@
 </head>
 <body>
     <div class="app">
-        <?php $moduloActivo = 'inventario'; require __DIR__ . '/menu_lateral.php'; ?>
+        <?php $moduloActivo = 'vehiculos'; require __DIR__ . '/menu_lateral.php'; ?>
         <div class="main">
             <header class="topbar">
-                <div class="page-id"><small>ABCC / Inventario</small><b>Vehículos</b></div>
+                <div class="page-id"><small>ABCC / Vehículos</small><b>Vehículos</b></div>
                 <a class="btn btn-ghost btn-outline-secondary" href="panel.html">Volver al panel</a>
             </header>
             <main class="content">
