@@ -1,4 +1,15 @@
-<?php $moduloActivo = $moduloActivo ?? null; ?>
+<?php
+$moduloActivo = $moduloActivo ?? null;
+require_once __DIR__ . '/../../backend/repositories/vehiculo_dao.php';
+
+try {
+    $conexionMenu = $pdo ?? require __DIR__ . '/../../backend/config/database/conexion_bd.php';
+    $vehiculosDisponibles = (new VehiculoDAO($conexionMenu))->contarVehiculosDisponibles();
+} catch (PDOException $e) {
+    error_log('Error al contar vehículos disponibles: ' . $e->getMessage());
+    $vehiculosDisponibles = null;
+}
+?>
         <aside class="sidebar" id="sidebar">
             <a class="brand-top" href="../../index.html" aria-label="Autos Amistosos - Inicio">
                 <img src="../images/logo.png" alt="Logotipo de Autos Amistosos">
@@ -8,7 +19,7 @@
             <nav class="nav-group nav flex-column" aria-label="General">
                 <p class="nav-title">General</p>
 
-                <a class="nav-link" href="panel.html">
+                <a class="nav-link<?= $moduloActivo === 'panel' ? ' active' : '' ?>" href="panel.php"<?= $moduloActivo === 'panel' ? ' aria-current="page"' : '' ?>>
                     <i class="fa-solid fa-table-columns fa-fw" aria-hidden="true"></i>
                     Panel principal
                 </a>
@@ -20,16 +31,19 @@
                 <a class="nav-link<?= $moduloActivo === 'vehiculos' ? ' active' : '' ?>" href="vehiculos.php"<?= $moduloActivo === 'inventario' ? ' aria-current="location"' : '' ?>>
                     <i class="fa-solid fa-car-side fa-fw" aria-hidden="true"></i>
                     Vehículos
-                    <span class="badge">148</span>
-                </a>
-                <a class="nav-link" href="#">
-                    <i class="fa-solid fa-users fa-fw" aria-hidden="true"></i>
-                    Clientes
+                    <?php if ($vehiculosDisponibles !== null): ?>
+                        <span class="badge" title="Vehículos disponibles"><?= $vehiculosDisponibles ?></span>
+                    <?php endif; ?>
                 </a>
                 <a class="nav-link" href="#">
                     <i class="fa-solid fa-receipt fa-fw" aria-hidden="true"></i>
                     Ventas
                 </a>
+                <a class="nav-link" href="#">
+                    <i class="fa-solid fa-users fa-fw" aria-hidden="true"></i>
+                    Clientes
+                </a>
+
                 <a class="nav-link" href="#">
                     <i class="fa-solid fa-credit-card fa-fw" aria-hidden="true"></i>
                     Financiamiento

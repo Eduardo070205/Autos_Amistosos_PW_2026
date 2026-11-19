@@ -88,6 +88,12 @@ class VehiculoDAO implements VehiculoEscritura, VehiculoLectura
     }
 
     // ---------------- CONSULTAS ----------------
+    public function contarVehiculosDisponibles(): int
+    {
+        $stmt = $this->conexion->query("SELECT COUNT(*) FROM vehiculos WHERE Estado = 'Disponible'");
+        return (int) $stmt->fetchColumn();
+    }
+
     public function consultarVehiculos(): array
     {
         $sql = 'SELECT * FROM vehiculos';

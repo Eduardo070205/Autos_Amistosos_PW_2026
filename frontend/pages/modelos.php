@@ -31,7 +31,7 @@
     <div class="app">
         <?php $moduloActivo = 'modelos'; require __DIR__ . '/menu_lateral.php'; ?>
         <div class="main">
-            <header class="topbar"><div class="page-id"><small>ABCC / Catálogo</small><b>Modelos</b></div><a class="btn btn-ghost btn-outline-secondary" href="panel.html">Volver al panel</a></header>
+            <header class="topbar"><div class="page-id"><small>ABCC / Catálogo</small><b>Modelos</b></div><a class="btn btn-ghost btn-outline-secondary" href="panel.php">Volver al panel</a></header>
             <main class="content">
                 <?php if ($avisoBaja !== null): ?>
                     <div class="alert <?= $avisoBaja['correcto'] ? 'alert-success' : 'alert-danger' ?>" <?= $avisoBaja['correcto'] ? 'data-aviso-exito' : '' ?> role="status"><?= htmlspecialchars($avisoBaja['mensaje'], ENT_QUOTES, 'UTF-8') ?></div>
