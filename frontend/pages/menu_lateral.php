@@ -69,6 +69,10 @@ try {
                     <i class="fa-solid fa-gear fa-fw" aria-hidden="true"></i>
                     Configuración
                 </a>
+                <a class="nav-link<?= $moduloActivo === 'usuarios' ? ' active' : '' ?>" href="registro_usuario.php"<?= $moduloActivo === 'usuarios' ? ' aria-current="page"' : '' ?>>
+                    <i class="fa-solid fa-user-plus fa-fw" aria-hidden="true"></i>
+                    Registrar usuario
+                </a>
             </nav>
 
             <div class="side-user">
