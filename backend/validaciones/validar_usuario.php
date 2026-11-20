@@ -13,9 +13,8 @@ function validarUsuario(array $datos, bool $desdePanel = false): array
     }
 
     $password = $datos['password'] ?? null;
-    if (!isset($errores['password'])
-        && (mb_strlen($password, 'UTF-8') < 8 || strlen($password) > 72)) {
-        $errores['password'] = 'La contraseña debe tener al menos 8 caracteres y ocupar como máximo 72 bytes.';
+    if (!isset($errores['password']) && mb_strlen($password, 'UTF-8') < 8) {
+        $errores['password'] = 'La contraseña debe tener al menos 8 caracteres.';
     }
 
     if ($desdePanel && !in_array($datos['rol'] ?? null, ['administrador', 'empleado', 'cliente'], true)) {

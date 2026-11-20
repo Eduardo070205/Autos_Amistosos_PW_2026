@@ -30,13 +30,13 @@ class UsuarioServicio
     /** @return array|false Datos del usuario autenticado o false si las credenciales son incorrectas. */
     public function autenticarUsuario(array $datos): array|false
     {
-        if (validarInicioSesion($datos) !== [] || strlen($datos['password']) > 72) {
+        if (validarInicioSesion($datos) !== []) {
             return false;
         }
 
         $usuario = $this->repositorio->consultarUsuarioCorreo(trim($datos['email']));
         $hash = $usuario['Password'] ?? null;
-        if (!is_string($hash) || !password_verify($datos['password'], $hash)) {
+        if (!is_string($hash) || !hash_equals($hash, sha1($datos['password']))) {
             return false;
         }
 
@@ -51,7 +51,7 @@ class UsuarioServicio
             bin2hex(random_bytes(5)),
             trim($datos['usuario'], ' '),
             trim($datos['email']),
-            password_hash($datos['password'], PASSWORD_BCRYPT),
+            sha1($datos['password']),
             $idRol
         );
     }
