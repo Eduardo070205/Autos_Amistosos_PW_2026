@@ -35,7 +35,7 @@ try {
                         <span class="badge" title="Vehículos disponibles"><?= $vehiculosDisponibles ?></span>
                     <?php endif; ?>
                 </a>
-                <a class="nav-link" href="#">
+                <a class="nav-link<?= $moduloActivo === 'ventas' ? ' active' : '' ?>" href="ventas.php"<?= $moduloActivo === 'ventas' ? ' aria-current="location"' : '' ?>>
                     <i class="fa-solid fa-receipt fa-fw" aria-hidden="true"></i>
                     Ventas
                 </a>

@@ -1,0 +1,21 @@
+.sales-section { margin-bottom: 24px; }
+.sales-search { flex: 1 1 240px; }
+.sales-capture {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    align-items: start;
+    gap: 24px;
+}
+.sales-unit {
+    padding: 20px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--bg-soft);
+}
+.sales-unit h3 { font-size: 1rem; margin-bottom: 16px; }
+.sales-unit dd { overflow-wrap: anywhere; }
+
+@media (max-width: 720px) {
+    .sales-capture { grid-template-columns: 1fr; }
+    .sales-search { flex: auto; }
+}
