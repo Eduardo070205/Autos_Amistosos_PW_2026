@@ -1,3 +1,26 @@
+<?php
+declare(strict_types=1);
+session_start();
+require_once __DIR__ . '/../../backend/repositories/venta_dao.php';
+$_SESSION['csrf_ventas'] ??= bin2hex(random_bytes(32));
+$aviso = $_SESSION['aviso_venta'] ?? null;
+unset($_SESSION['aviso_venta']);
+
+$ventas = [];
+$errorHistorial = false;
+try {
+    $pdo = require __DIR__ . '/../../backend/config/database/conexion_bd.php';
+    $ventas = (new VentaDAO($pdo))->consultarVentas();
+} catch (PDOException $e) {
+    error_log('Error al consultar ventas: ' . $e->getMessage());
+    $errorHistorial = true;
+}
+
+function escaparVenta(string $valor): string
+{
+    return htmlspecialchars($valor, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+}
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -10,8 +33,10 @@
     <link rel="stylesheet" href="../vendor/fontawesome/css/solid.min.css">
     <link rel="stylesheet" href="../css/panel.css">
     <link rel="stylesheet" href="../css/agregar_modelo.css">
-    <link rel="stylesheet" href="../css/modelos.css">
+    <link rel="stylesheet" href="../css/modelos.css?v=<?= filemtime(__DIR__ . '/../css/modelos.css') ?>">
     <link rel="stylesheet" href="../css/ventas.css">
+    <script src="../js/ventas.js?v=<?= filemtime(__DIR__ . '/../js/ventas.js') ?>" defer></script>
+    <script src="../vendor/bootstrap/bootstrap.bundle.min.js" defer></script>
 </head>
 <body>
     <div class="app">
@@ -22,101 +47,113 @@
                 <a class="btn btn-ghost btn-outline-secondary" href="panel.php">Volver al panel</a>
             </header>
             <main class="content">
+                <?php if ($aviso !== null): ?>
+                    <div class="alert <?= $aviso['correcto'] ? 'alert-success' : 'alert-danger' ?>" role="status" data-aviso-venta><?= escaparVenta($aviso['mensaje']) ?></div>
+                <?php endif; ?>
                 <div class="page-head">
                     <h1>Ventas</h1>
-                    <a class="btn btn-primary" href="#registrar-venta">+ Registrar venta</a>
+                    <a class="btn btn-primary" href="formulario_venta.php">+ Registrar venta</a>
                 </div>
                 <section class="card sales-section" aria-labelledby="historial-titulo">
                     <div class="card-head"><h2 id="historial-titulo">Historial de ventas</h2></div>
                     <div class="filters">
                         <div class="model-field sales-search">
                             <label for="buscar-venta">Buscar venta</label>
-                            <input type="search" id="buscar-venta" placeholder="Folio, cliente o VIN" disabled>
+                            <input type="search" id="buscar-venta" placeholder="Folio, cliente o VIN" aria-controls="filas-ventas" <?= $errorHistorial ? 'disabled' : '' ?>>
                         </div>
                         <div class="model-field">
                             <label for="venta-desde">Desde</label>
-                            <input type="date" id="venta-desde" disabled>
+                            <input type="date" id="venta-desde" aria-controls="filas-ventas" <?= $errorHistorial ? 'disabled' : '' ?>>
                         </div>
                         <div class="model-field">
                             <label for="venta-hasta">Hasta</label>
-                            <input type="date" id="venta-hasta" disabled>
+                            <input type="date" id="venta-hasta" aria-controls="filas-ventas" <?= $errorHistorial ? 'disabled' : '' ?>>
                         </div>
-                        <button class="btn btn-ghost btn-outline-secondary" type="button" disabled>Limpiar filtros</button>
+                        <button class="btn btn-ghost btn-outline-secondary" type="button" id="limpiar-ventas" <?= $errorHistorial ? 'disabled' : '' ?>>Limpiar filtros</button>
                     </div>
+                    <p id="resultados-ventas" class="results" role="status"></p>
                     <div class="table-scroll table-responsive">
                         <table class="table align-middle" aria-labelledby="historial-titulo">
                             <thead><tr>
                                 <th scope="col">Folio</th>
                                 <th scope="col">Fecha</th>
                                 <th scope="col">Cliente</th>
+                                <th scope="col">Empleado</th>
                                 <th scope="col">Vehículo</th>
                                 <th scope="col">Forma de pago</th>
                                 <th scope="col">Precio final</th>
                                 <th scope="col">Acciones</th>
                             </tr></thead>
-                            <tbody>
-                                <tr><td colspan="7" class="empty">El historial estará disponible al conectar el módulo de ventas.</td></tr>
+                            <tbody id="filas-ventas">
+                                <?php foreach ($ventas as $venta): ?>
+                                    <tr data-fecha-venta="<?= escaparVenta($venta['Fecha_Venta']) ?>">
+                                        <td data-busqueda><?= (int) $venta['ID_Venta'] ?></td>
+                                        <td><?= escaparVenta($venta['Fecha_Venta']) ?></td>
+                                        <td data-busqueda><?= escaparVenta($venta['Cliente']) ?></td>
+                                        <td><?= escaparVenta($venta['Empleado']) ?></td>
+                                        <td>
+                                            <?= escaparVenta($venta['Nombre_Modelo']) ?>
+                                            <small class="d-block" data-busqueda><?= escaparVenta($venta['Numero_Serie']) ?></small>
+                                        </td>
+                                        <td><?= escaparVenta($venta['Forma_Pago']) ?></td>
+                                        <td>$<?= number_format((float) $venta['Precio_Final'], 2) ?></td>
+                                        <td>
+                                            <div class="d-flex flex-wrap gap-1">
+                                                <button type="button" class="btn btn-sm btn-outline-secondary"
+                                                    data-detalles-venta="<?= escaparVenta(json_encode([
+                                                        'Folio' => $venta['ID_Venta'],
+                                                        'Fecha' => $venta['Fecha_Venta'],
+                                                        'Cliente' => $venta['Cliente'],
+                                                        'Empleado' => $venta['Empleado'],
+                                                        'Vehículo' => $venta['Nombre_Modelo'],
+                                                        'VIN' => $venta['Numero_Serie'],
+                                                        'Forma de pago' => $venta['Forma_Pago'],
+                                                        'Precio final (MXN)' => '$' . number_format((float) $venta['Precio_Final'], 2),
+                                                    ], JSON_INVALID_UTF8_SUBSTITUTE)) ?>">Detalles</button>
+                                                <a class="btn btn-sm btn-outline-primary" href="formulario_venta.php?id=<?= (int) $venta['ID_Venta'] ?>">Modificar</a>
+                                                <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal"
+                                                    data-bs-target="#eliminar-venta-modal" data-id="<?= (int) $venta['ID_Venta'] ?>">Eliminar</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                                <tr id="ventas-sin-resultados" <?= $ventas !== [] ? 'hidden' : '' ?>>
+                                    <td colspan="8" class="empty"><?= $errorHistorial ? 'No se pudo cargar el historial de ventas.' : 'Aún no hay ventas registradas.' ?></td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
                 </section>
-                <form class="card sales-section" id="registrar-venta" aria-labelledby="captura-titulo">
-                    <div class="card-head"><h2 id="captura-titulo">Registrar venta</h2></div>
-                    <div class="card-body sales-capture">
-                        <div>
-                            <fieldset>
-                                <legend>Cliente y vehículo</legend>
-                                <div class="model-grid">
-                                    <div class="model-field">
-                                        <label for="venta-cliente">Cliente</label>
-                                        <input type="search" id="venta-cliente" placeholder="Busca por nombre" disabled>
-                                    </div>
-                                    <div class="model-field">
-                                        <label for="venta-unidad">Vehículo</label>
-                                        <input type="search" id="venta-unidad" placeholder="Busca por VIN o modelo" disabled>
-                                    </div>
-                                </div>
-                            </fieldset>
-                            <fieldset>
-                                <legend>Datos de la operación</legend>
-                                <div class="model-grid">
-                                    <div class="model-field">
-                                        <label for="venta-fecha">Fecha de venta</label>
-                                        <input id="venta-fecha" type="date" required>
-                                    </div>
-                                    <div class="model-field">
-                                        <label for="venta-empleado">Empleado</label>
-                                        <select id="venta-empleado" class="form-select" disabled>
-                                            <option value="">Selecciona un empleado</option>
-                                        </select>
-                                    </div>
-                                    <div class="model-field">
-                                        <label for="venta-pago">Forma de pago</label>
-                                        <input type="text" id="venta-pago" maxlength="20" required>
-                                    </div>
-                                </div>
-                            </fieldset>
-                        </div>
-                        <aside class="sales-unit" aria-labelledby="unidad-titulo">
-                            <h3 id="unidad-titulo">Ficha del vehículo</h3>
-                            <dl>
-                                <dt>Modelo</dt><dd>—</dd>
-                                <dt>VIN</dt><dd>—</dd>
-                                <dt>Estado</dt><dd>—</dd>
-                                <dt>Precio de lista (MXN)</dt><dd>—</dd>
-                            </dl>
-                            <div class="model-field">
-                                <label for="venta-precio">Precio final (MXN)</label>
-                                <input id="venta-precio" type="number" min="0" max="99999999.99" step="0.01" placeholder="0.00" required>
-                            </div>
-                        </aside>
-                    </div>
-                    <div class="model-actions">
-                        <button class="btn btn-ghost btn-outline-secondary" type="reset">Limpiar formulario</button>
-                        <button class="btn btn-primary" type="submit" disabled>Guardar venta</button>
+            </main>
+        </div>
+    </div>
+    <dialog id="detalles-venta" aria-labelledby="detalles-venta-titulo">
+        <div class="dialog-body">
+            <h2 id="detalles-venta-titulo">Detalles de la venta</h2>
+            <dl id="detalles-venta-datos"></dl>
+            <form method="dialog"><button class="btn btn-primary">Cerrar</button></form>
+        </div>
+    </dialog>
+    <div class="modal fade modal-confirmar-baja" id="eliminar-venta-modal" tabindex="-1" aria-labelledby="eliminar-venta-titulo" aria-describedby="eliminar-venta-mensaje eliminar-venta-advertencia" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title fs-5" id="eliminar-venta-titulo">¿Eliminar venta?</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="eliminar-venta-mensaje"></p>
+                    <p class="text-danger mt-2" id="eliminar-venta-advertencia">Esta acción no se puede deshacer.</p>
+                </div>
+                <form method="post" action="../../backend/scripts/ventas/ventas_bajas_procesar.php" id="eliminar-venta-form">
+                    <input type="hidden" name="id" id="eliminar-venta-id">
+                    <input type="hidden" name="csrf_token" value="<?= escaparVenta($_SESSION['csrf_ventas']) ?>">
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-ghost" data-bs-dismiss="modal" id="cancelar-baja-venta">Cancelar</button>
+                        <button type="submit" class="btn danger-btn" id="confirmar-baja-venta" disabled>Sí, eliminar</button>
                     </div>
                 </form>
-            </main>
+            </div>
         </div>
     </div>
 </body>

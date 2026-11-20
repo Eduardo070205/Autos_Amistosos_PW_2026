@@ -101,7 +101,7 @@
         </div>
     </div>
     <dialog id="details-dialog" aria-labelledby="details-title"><div class="dialog-body"><h2 id="details-title">Detalles del modelo</h2><dl id="model-details"></dl><form method="dialog"><button class="btn btn-primary">Cerrar</button></form></div></dialog>
-    <div class="modal fade" id="eliminar-modelo-modal" tabindex="-1" aria-labelledby="eliminar-modelo-titulo" aria-describedby="eliminar-modelo-mensaje" aria-hidden="true">
+    <div class="modal fade modal-confirmar-baja" id="eliminar-modelo-modal" tabindex="-1" aria-labelledby="eliminar-modelo-titulo" aria-describedby="eliminar-modelo-mensaje" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
