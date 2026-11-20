@@ -60,66 +60,16 @@ const predefinedOptions = {
     ID_Modelo: [['1:100', '1 a 100'], ['101:500', '101 a 500'], ['501:1000', '501 a 1,000'], ['1001:2147483647', 'Más de 1,000']]
 };
 
-function matchesNumericOption(value, query) {
-    const number = Number(value);
-    if (value === null || value === undefined || !Number.isFinite(number)) return false;
-    if (!query.includes(':')) return number === Number(query);
-    const [min, max] = query.split(':').map(Number);
-    return number >= min && number <= max;
-}
-// PHP crea las filas; JavaScript solo filtra y muestra los detalles.
-const by = u('#buscar-por').first();
-const container = u('#filter-container').first();
+const entries = iniciarFiltroCatalogo({
+    fields,
+    predefinedOptions,
+    rowsId: 'model-rows',
+    dataKey: 'modelo',
+    emptyId: 'empty-models',
+    plural: 'modelos',
+    emptyMessage: 'No hay modelos registrados.'
+});
 const detailsDialog = u('#details-dialog').first();
-const entries = u('#model-rows tr[data-modelo]').nodes.map(element => ({element, data: JSON.parse(element.dataset.modelo)}));
-const rows = entries.map(entry => entry.data);
-const normalize = value => String(value ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('es').trim();
-const filterFields = [['todos', 'Todos los campos', 'text'], ...fields];
-filterFields.forEach(([key,label]) => by.add(new Option(label,key)));
-
-// Mostrar u ocultar filas ya creadas por PHP; no enviar consultas ni cambiar MySQL.
-function render() {
-    const control = u('#filter-value').first();
-    const query = control.value.trim();
-    const mode = filterFields.find(([key]) => key === by.value)[2];
-    let visible = 0;
-    entries.forEach(({element, data}) => {
-        const matches = control.validity.valid && (!query || (by.value === 'todos'
-            ? fields.some(([key]) => normalize(data[key]).includes(normalize(query)))
-            : mode === 'text' ? normalize(data[by.value]).includes(normalize(query))
-            : matchesNumericOption(data[by.value], query)));
-        element.hidden = !matches;
-        if (matches) visible++;
-    });
-    const empty = u('#empty-models').first();
-    empty.hidden = visible > 0;
-    empty.firstElementChild.textContent = rows.length ? 'No hay coincidencias.' : 'No hay modelos registrados.';
-    u('#results').text(visible + ' de ' + rows.length + ' modelos');
-}
-
-// Cambiar el control de busqueda segun el campo elegido.
-function buildFilter(value = '') {
-    const [key, label, mode] = filterFields.find(([key]) => key === by.value);
-    const caption = u('<label>').attr('for', 'filter-value').addClass('form-label').text(label);
-    const isCombo = mode !== 'text';
-    const control = u(isCombo ? '<select>' : '<input>')
-        .attr({id: 'filter-value', 'aria-controls': 'model-rows'})
-        .addClass(isCombo ? 'form-select' : 'form-control').first();
-    if (isCombo) {
-        control.add(new Option('Todos', ''));
-        predefinedOptions[key].forEach(([value, text]) => control.add(new Option(text, value)));
-    } else {
-        control.type = mode;
-        control.placeholder = mode === 'text' ? 'Escribe para buscar…' : 'Ingresa un valor exacto';
-        if (mode === 'number') { control.min = '0'; control.step = key === 'Peso_KG' ? '0.01' : '1'; }
-    }
-    control.value = value;
-    if (isCombo && control.selectedIndex < 0) control.value = '';
-    u(control).on('input change', render);
-    u(container).empty().append([caption.first(), control]);
-    render();
-}
-
 
 // Los detalles se muestran con textContent, sin interpretar los valores como HTML.
 entries.forEach(({element, data: row}) => {
@@ -133,9 +83,3 @@ entries.forEach(({element, data: row}) => {
         detailsDialog.showModal();
     });
 });
-u(by).on('change', () => buildFilter());
-u('#clear-filter').on('click', () => {
-    buildFilter();
-    u('#filter-value').first().focus();
-});
-buildFilter();

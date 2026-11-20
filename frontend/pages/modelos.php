@@ -24,6 +24,7 @@
     <link rel="stylesheet" href="../css/agregar_modelo.css">
     <link rel="stylesheet" href="../css/modelos.css?v=<?= filemtime(__DIR__ . '/../css/modelos.css') ?>">
     <script src="../vendor/umbrella/umbrella.min.js" defer></script>
+    <script src="../../backend/js/filtro_catalogo.js?v=<?= filemtime(__DIR__ . '/../../backend/js/filtro_catalogo.js') ?>" defer></script>
     <script src="../../backend/js/modelos.js?v=<?= filemtime(__DIR__ . '/../../backend/js/modelos.js') ?>" defer></script>
     <script src="../vendor/bootstrap/bootstrap.bundle.min.js" defer></script>
 </head>

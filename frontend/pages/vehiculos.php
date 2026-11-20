@@ -10,6 +10,10 @@
     // PHP consulta MySQL antes de generar las filas de la tabla.
     $vehiculos = $vehiculoDAO->consultarVehiculos();
 
+    function escaparVehiculo($valor): string
+    {
+        return htmlspecialchars((string) $valor, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+    }
 ?>
 
 <!DOCTYPE html>
@@ -25,6 +29,9 @@
     <link rel="stylesheet" href="../css/panel.css">
     <link rel="stylesheet" href="../css/agregar_modelo.css">
     <link rel="stylesheet" href="../css/modelos.css">
+    <script src="../vendor/umbrella/umbrella.min.js" defer></script>
+    <script src="../../backend/js/filtro_catalogo.js?v=<?= filemtime(__DIR__ . '/../../backend/js/filtro_catalogo.js') ?>" defer></script>
+    <script src="../../backend/js/vehiculos.js?v=<?= filemtime(__DIR__ . '/../../backend/js/vehiculos.js') ?>" defer></script>
 </head>
 <body>
     <div class="app">
@@ -47,6 +54,15 @@
                 </div>
                 <section class="card" aria-labelledby="inventario-titulo">
                     <div class="card-head"><h2 id="inventario-titulo">Inventario de vehículos</h2></div>
+                    <div class="filters">
+                        <div class="model-field">
+                            <label for="buscar-por" class="form-label">Buscar por</label>
+                            <select id="buscar-por" class="form-select"></select>
+                        </div>
+                        <div class="model-field filter-value" id="filter-container"></div>
+                        <button class="btn btn-ghost btn-outline-secondary" type="button" id="clear-filter">Limpiar filtro</button>
+                    </div>
+                    <p id="results" class="results" role="status" aria-live="polite" aria-atomic="true"></p>
                     <div class="table-scroll table-responsive">
                         <table class="table align-middle" aria-labelledby="inventario-titulo">
                             <thead>
@@ -61,31 +77,29 @@
                                     <th scope="col">Acciones</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <?php if (empty($vehiculos)): ?>
-                                    <tr>
-                                        <td colspan="8" class="empty">Aún no hay vehículos para mostrar.</td>
+                            <tbody id="vehicle-rows">
+                                <?php foreach ($vehiculos as $vehiculo): ?>
+                                    <tr data-vehiculo="<?= escaparVehiculo(json_encode($vehiculo, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE)) ?>">
+                                        <td><?= escaparVehiculo($vehiculo['ID_Vehiculo']) ?></td>
+                                        <td><?= escaparVehiculo($vehiculo['Numero_Serie']) ?></td>
+                                        <td><?= escaparVehiculo($vehiculo['ID_Modelo']) ?></td>
+                                        <td><?= escaparVehiculo($vehiculo['Tipo']) ?></td>
+                                        <td>$<?= number_format($vehiculo['Precio'], 2) ?></td>
+                                        <td><?= escaparVehiculo($vehiculo['Kilometraje']) ?></td>
+                                        <td><?= escaparVehiculo($vehiculo['Estado']) ?></td>
+                                        <td>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary" data-detalles aria-label="Detalles de <?= escaparVehiculo($vehiculo['ID_Vehiculo']) ?>">Detalles</button>
+                                            <a href="formulario_vehiculo.php?id=<?= rawurlencode($vehiculo['ID_Vehiculo']) ?>" class="btn btn-sm btn-outline-primary">Editar</a>
+                                            <form class="d-inline" method="post" action="../../backend/scripts/vehiculos/vehiculos_bajas_procesar.php" onsubmit="return confirm('¿Quieres eliminar este vehículo?')">
+                                                <input type="hidden" name="id" value="<?= escaparVehiculo($vehiculo['ID_Vehiculo']) ?>">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger">Eliminar</button>
+                                            </form>
+                                        </td>
                                     </tr>
-                                <?php else: ?>
-                                    <?php foreach ($vehiculos as $vehiculo): ?>
-                                        <tr>
-                                            <td><?= $vehiculo['ID_Vehiculo'] ?></td>
-                                            <td><?= $vehiculo['Numero_Serie'] ?></td>
-                                            <td><?= $vehiculo['ID_Modelo'] ?></td>
-                                            <td><?= $vehiculo['Tipo'] ?></td>
-                                            <td>$<?= number_format($vehiculo['Precio'], 2) ?></td>
-                                            <td><?= $vehiculo['Kilometraje'] ?></td>
-                                            <td><?= $vehiculo['Estado'] ?></td>
-                                            <td>
-                                                <a href="formulario_vehiculo.php?id=<?= rawurlencode($vehiculo['ID_Vehiculo']) ?>" class="btn btn-sm btn-outline-primary">Editar</a>
-                                                <form class="d-inline" method="post" action="../../backend/scripts/vehiculos/vehiculos_bajas_procesar.php" onsubmit="return confirm('¿Quieres eliminar este vehículo?')">
-                                                    <input type="hidden" name="id" value="<?= htmlspecialchars($vehiculo['ID_Vehiculo'], ENT_QUOTES, 'UTF-8') ?>">
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger">Eliminar</button>
-                                                </form>
-                                            </td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                <?php endif; ?>
+                                <?php endforeach; ?>
+                                <tr id="empty-vehicles" <?= $vehiculos !== [] ? 'hidden' : '' ?>>
+                                    <td colspan="8" class="empty">Aún no hay vehículos para mostrar.</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -93,5 +107,12 @@
             </main>
         </div>
     </div>
+    <dialog id="vehicle-details-dialog" aria-labelledby="vehicle-details-title">
+        <div class="dialog-body">
+            <h2 id="vehicle-details-title">Detalles del vehículo</h2>
+            <dl id="vehicle-details"></dl>
+            <form method="dialog"><button class="btn btn-primary">Cerrar</button></form>
+        </div>
+    </dialog>
 </body>
 </html>
