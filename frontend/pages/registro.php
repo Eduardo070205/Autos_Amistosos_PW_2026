@@ -1,3 +1,9 @@
+<?php
+session_start();
+$claveRegistro = 'registro_cliente';
+$avisoRegistro = $_SESSION[$claveRegistro] ?? [];
+unset($_SESSION[$claveRegistro]);
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -36,15 +42,25 @@
                     <h2>Registro de cliente</h2>
                 </div>
 
-                <form id="form-registro" method="post">
+                <?php require __DIR__ . '/avisos_registro.php'; ?>
+                <form id="form-registro" method="post" action="../../backend/scripts/usuarios/usuarios_alta_procesar.php">
                     <div class="field">
-                        <label for="f-usuario" class="form-label">Usuario</label>
+                        <label for="f-usuario" class="form-label">Nombre</label>
                         <div class="input-shell">
                             <span class="lead-ic">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21a8 8 0 0 0-16 0"/><circle cx="12" cy="7" r="4"/></svg>
                             </span>
-                            <input type="text" id="f-usuario" name="usuario" placeholder="Ej. maria.gonzalez" autocomplete="username" required class="form-control">
+                            <input type="text" id="f-usuario" name="usuario" placeholder="Ej. Pepe" autocomplete="name" maxlength="50" required class="form-control">
                         </div>
+                    </div>
+
+                    <div class="field">
+                        <label for="f-id-usuario" class="form-label">ID de usuario</label>
+                        <div class="input-shell">
+                            <span class="lead-ic" aria-hidden="true">@</span>
+                            <input type="text" id="f-id-usuario" name="id_usuario" placeholder="Ej. Pepito123" autocomplete="username" maxlength="10" pattern="[A-Za-z0-9]{1,10}" aria-describedby="ayuda-id-usuario" required class="form-control">
+                        </div>
+                        <small id="ayuda-id-usuario">Hasta 10 letras (A–Z) o números, sin espacios.</small>
                     </div>
 
                     <div class="field">
@@ -67,11 +83,10 @@
                         </div>
                     </div>
 
-                    <p class="mb-3 text-secondary">Vista previa del formulario.</p>
-                    <button type="button" class="btn btn-primary" disabled>Crear cuenta</button>
+                    <button type="submit" class="btn btn-primary">Crear cuenta</button>
                 </form>
 
-                <p class="login-line">¿Ya tienes cuenta? <a href="login.html">Inicia sesión</a></p>
+                <p class="login-line">¿Ya tienes cuenta? <a href="login.php">Inicia sesión</a></p>
             </section>
 
         </div>

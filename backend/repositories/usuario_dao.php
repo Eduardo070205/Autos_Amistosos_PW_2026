@@ -46,7 +46,29 @@ class UsuarioDAO implements UsuarioLectura, UsuarioEscritura
     {
         $stmt = $this->conexion->prepare('DELETE FROM users WHERE ID_User = ?');
 
-        return $stmt->execute([$idUsuario]);
+        $stmt->execute([$idUsuario]);
+        return $stmt->rowCount() === 1;
+    }
+
+    public function esAdministrador(?string $idUsuario): bool
+    {
+        if ($idUsuario === null) {
+            return false;
+        }
+
+        $stmt = $this->conexion->prepare(
+            'SELECT 1 FROM users u JOIN roles r ON r.ID_Rol = u.ID_Rol WHERE u.ID_User = ? AND r.Rol = ?'
+        );
+        $stmt->execute([$idUsuario, 'Administrador']);
+        return $stmt->fetchColumn() !== false;
+    }
+
+    public function consultarUsuariosConRol(): array
+    {
+        return $this->conexion->query(
+            'SELECT u.ID_User, u.Nombre_User, r.Rol FROM users u
+             LEFT JOIN roles r ON r.ID_Rol = u.ID_Rol ORDER BY u.ID_User'
+        )->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function consultarUsuarios(): array

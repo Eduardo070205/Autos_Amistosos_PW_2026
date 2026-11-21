@@ -1,10 +1,17 @@
+<?php
+declare(strict_types=1);
+
+session_start();
+$errorLogin = $_SESSION['error_login'] ?? null;
+unset($_SESSION['error_login']);
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Acceso — Autos Amistosos</title>
-    <meta name="description" content="Inicia sesi?n en Autos Amistosos.">
+    <meta name="description" content="Inicia sesión en Autos Amistosos.">
     <link rel="icon" type="image/png" href="../images/logo.png">
     <link rel="stylesheet" href="../css/bootstrap-base.css">
     <link rel="stylesheet" href="../css/login.css">
@@ -37,7 +44,10 @@
                     <p>Ingresa tus credenciales para continuar.</p>
                 </div>
 
-                <form id="form-login" method="post">
+                <?php if ($errorLogin !== null): ?>
+                    <div class="alert alert-danger" role="alert"><?= htmlspecialchars($errorLogin, ENT_QUOTES, 'UTF-8') ?></div>
+                <?php endif; ?>
+                <form id="form-login" method="post" action="../../backend/scripts/usuarios/usuarios_login_procesar.php">
                     <div class="field">
                         <label for="f-email" class="form-label">Correo electrónico</label>
                         <div class="input-shell">
@@ -65,8 +75,7 @@
                         <a href="recuperar.html">¿Olvidaste tu contraseña?</a>
                     </div>
 
-                    <p class="mb-3 text-secondary">Vista previa del formulario.</p>
-                    <button type="button" class="btn btn-primary" disabled>Ingresar</button>
+                    <button type="submit" class="btn btn-primary">Ingresar</button>
                 </form>
 
                 <div class="divider">o</div>
@@ -76,7 +85,7 @@
                     Ver catálogo sin iniciar sesión
                 </a>
 
-                <p class="signup-line">¿No tienes cuenta? <a href="registro.html">Regístrate aquí</a></p>
+                <p class="signup-line">¿No tienes cuenta? <a href="registro.php">Regístrate aquí</a></p>
             </section>
 
         </div>

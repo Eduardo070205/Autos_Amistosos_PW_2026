@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="frontend/css/bootstrap-base.css">
     <link rel="stylesheet" href="frontend/css/landing_page.css">
     <script src="frontend/vendor/bootstrap/bootstrap.bundle.min.js" defer></script>
+    <script src="frontend/js/usuario_sesion.js" defer></script>
 </head>
 <body>
 
@@ -27,12 +28,12 @@
                 <li><a href="#seminuevos">Seminuevos</a></li>
                 <li><a href="#nosotros">Nosotros</a></li>
                 <li><a href="#contacto">Contacto</a></li>
-                <li class="guest-link"><a href="frontend/pages/login.html">Iniciar sesión</a></li>
-                <li class="guest-link"><a href="frontend/pages/registro.html">Crear cuenta</a></li>
+                <li class="guest-link"><a href="frontend/pages/login.php">Iniciar sesión</a></li>
+                <li class="guest-link"><a href="frontend/pages/registro.php">Crear cuenta</a></li>
             </ul>
 
             <div class="nav-cta">
-                <span class="client-name" id="vista-cliente">María González</span>
+                <span class="client-name" id="nombre-usuario" hidden></span>
                 <a href="#contacto" class="btn btn-outline btn-outline-secondary">Prueba de manejo</a>
                 <button class="nav-toggle" id="nav-toggle" aria-label="Abrir menú" aria-expanded="false" aria-controls="nav-links">
                     <span></span><span></span><span></span>

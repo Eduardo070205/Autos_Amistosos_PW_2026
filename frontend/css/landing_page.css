@@ -199,7 +199,6 @@ section { scroll-margin-top: 90px; }
 .nav-cta { display: flex; align-items: center; gap: 14px; }
 
 .client-name {
-    display: none;
     max-width: min(26vw, 12rem);
     overflow: hidden;
     text-overflow: ellipsis;
@@ -210,8 +209,6 @@ section { scroll-margin-top: 90px; }
     color: var(--ink-deep);
     font-weight: 700;
 }
-.client-name:target { display: block; }
-.site-header:has(.client-name:target) .guest-link { display: none; }
 
 .nav-toggle {
     display: none;

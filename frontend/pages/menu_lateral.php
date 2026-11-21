@@ -1,9 +1,16 @@
 <?php
 $moduloActivo = $moduloActivo ?? null;
 require_once __DIR__ . '/../../backend/repositories/vehiculo_dao.php';
+require_once __DIR__ . '/../../backend/repositories/usuario_dao.php';
+
+$idSesionMenu = $_SESSION['id_usuario'] ?? null;
+$puedeAdministrarUsuarios = $moduloActivo === 'usuarios';
 
 try {
     $conexionMenu = $pdo ?? require __DIR__ . '/../../backend/config/database/conexion_bd.php';
+    if (!$puedeAdministrarUsuarios && is_string($idSesionMenu)) {
+        $puedeAdministrarUsuarios = (new UsuarioDAO($conexionMenu))->esAdministrador($idSesionMenu);
+    }
     $vehiculosDisponibles = (new VehiculoDAO($conexionMenu))->contarVehiculosDisponibles();
 } catch (PDOException $e) {
     error_log('Error al contar vehículos disponibles: ' . $e->getMessage());
@@ -69,10 +76,21 @@ try {
                     <i class="fa-solid fa-gear fa-fw" aria-hidden="true"></i>
                     Configuración
                 </a>
-                <a class="nav-link<?= $moduloActivo === 'usuarios' ? ' active' : '' ?>" href="registro_usuario.php"<?= $moduloActivo === 'usuarios' ? ' aria-current="page"' : '' ?>>
-                    <i class="fa-solid fa-user-plus fa-fw" aria-hidden="true"></i>
-                    Registrar usuario
-                </a>
+                <?php if ($puedeAdministrarUsuarios): ?>
+                    <a class="nav-link<?= $moduloActivo === 'usuarios' ? ' active' : '' ?>" href="registro_usuario.php"<?= $moduloActivo === 'usuarios' ? ' aria-current="location"' : '' ?>>
+                        <i class="fa-solid fa-user-plus fa-fw" aria-hidden="true"></i>
+                        Registrar usuario
+                    </a>
+                <?php endif; ?>
+                <?php if (is_string($idSesionMenu)): ?>
+                    <form method="post" action="../../backend/scripts/usuarios/usuarios_logout_procesar.php">
+                        <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_logout'] ??= bin2hex(random_bytes(32)) ?>">
+                        <button type="submit" class="nav-link w-100 text-start border-0">
+                            <i class="fa-solid fa-right-from-bracket fa-fw" aria-hidden="true"></i>
+                            Cerrar sesión
+                        </button>
+                    </form>
+                <?php endif; ?>
             </nav>
 
             <div class="side-user">

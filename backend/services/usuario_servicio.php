@@ -48,7 +48,7 @@ class UsuarioServicio
     private function crearUsuario(array $datos, int $idRol): Usuario
     {
         return new Usuario(
-            bin2hex(random_bytes(5)),
+            $datos['id_usuario'],
             trim($datos['usuario'], ' '),
             trim($datos['email']),
             sha1($datos['password']),
