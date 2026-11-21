@@ -4,6 +4,17 @@ require_once __DIR__ . '/../../backend/repositories/vehiculo_dao.php';
 require_once __DIR__ . '/../../backend/repositories/usuario_dao.php';
 
 $idSesionMenu = $_SESSION['id_usuario'] ?? null;
+$nombreSesionMenu = trim($_SESSION['nombre_usuario'] ?? '');
+$nombreSesionHtml = htmlspecialchars($nombreSesionMenu, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+$inicialesSesionHtml = '';
+if ($nombreSesionMenu !== '') {
+    $partesNombre = preg_split('/\s+/u', $nombreSesionMenu);
+    $iniciales = mb_substr($partesNombre[0], 0, 1, 'UTF-8');
+    if (count($partesNombre) > 1) {
+        $iniciales .= mb_substr($partesNombre[count($partesNombre) - 1], 0, 1, 'UTF-8');
+    }
+    $inicialesSesionHtml = htmlspecialchars(mb_strtoupper($iniciales, 'UTF-8'), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+}
 $puedeAdministrarUsuarios = $moduloActivo === 'usuarios';
 
 try {
@@ -84,7 +95,6 @@ try {
                 <?php endif; ?>
                 <?php if (is_string($idSesionMenu)): ?>
                     <form method="post" action="../../backend/scripts/usuarios/usuarios_logout_procesar.php">
-                        <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_logout'] ??= bin2hex(random_bytes(32)) ?>">
                         <button type="submit" class="nav-link w-100 text-start border-0">
                             <i class="fa-solid fa-right-from-bracket fa-fw" aria-hidden="true"></i>
                             Cerrar sesión
@@ -93,11 +103,10 @@ try {
                 <?php endif; ?>
             </nav>
 
-            <div class="side-user">
-                <span class="avatar">CN</span>
-                <span class="who">
-                    <b>Carlos Núñez</b>
-                    <span>Asesor de ventas</span>
-                </span>
-            </div>
+            <?php if ($nombreSesionHtml !== ''): ?>
+                <div class="side-user">
+                    <span class="avatar" aria-hidden="true"><?= $inicialesSesionHtml ?></span>
+                    <span class="who"><b><?= $nombreSesionHtml ?></b></span>
+                </div>
+            <?php endif; ?>
         </aside>

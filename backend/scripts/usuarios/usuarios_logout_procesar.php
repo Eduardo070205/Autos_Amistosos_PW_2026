@@ -8,14 +8,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
 }
 
 session_start();
-$token = $_POST['csrf_token'] ?? null;
-$tokenSesion = $_SESSION['csrf_logout'] ?? null;
 if (isset($_SESSION['id_usuario'])) {
-    if (!is_string($token) || !is_string($tokenSesion) || !hash_equals($tokenSesion, $token)) {
-        http_response_code(403);
-        exit('Solicitud inválida.');
-    }
-
     $_SESSION = [];
     session_destroy();
     if (ini_get('session.use_cookies')) {

@@ -1,4 +1,8 @@
-<?php session_start(); ?>
+<?php session_start(); 
+
+
+
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -34,17 +38,10 @@
                     <b>Panel principal</b>
                 </div>
 
-                <div class="search">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-                    <input type="search" placeholder="Buscar cliente, folio o vehículo..." class="form-control">
-                </div>
 
-                <button class="icon-btn" aria-label="Notificaciones">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21a2 2 0 0 0 4 0"/></svg>
-                    <span class="dot"></span>
-                </button>
-
-                <span class="avatar">CN</span>
+                <?php if ($inicialesSesionHtml !== ''): ?>
+                    <span class="avatar" aria-hidden="true"><?= $inicialesSesionHtml ?></span>
+                <?php endif; ?>
             </header>
 
             <!-- Contenido -->
@@ -52,7 +49,7 @@
 
                 <div class="page-head">
                     <div>
-                        <h1>Buenas tardes, Carlos</h1>
+                        <h1>Buenas tardes<?= $nombreSesionHtml === '' ? '' : ', ' . $nombreSesionHtml ?></h1>
                         <p>Este es el resumen operativo de Autos Amistosos al 3 de septiembre de 2026.</p>
                     </div>
                     <div style="display:flex; gap:10px; flex-wrap:wrap;">
@@ -178,7 +175,7 @@
                                     <span class="when"><b>04</b><span>Sep</span></span>
                                     <span class="info">
                                         <b>Toyota Corolla 2026</b>
-                                        <span>María González · 10:30 h · Asesor: Carlos N.</span>
+                                        <span>María González · 10:30 h<?= $nombreSesionHtml === '' ? '' : ' · Asesor: ' . $nombreSesionHtml ?></span>
                                     </span>
                                 </li>
                                 <li>
@@ -192,7 +189,7 @@
                                     <span class="when"><b>05</b><span>Sep</span></span>
                                     <span class="info">
                                         <b>Nissan Versa</b>
-                                        <span>Laura Méndez · 09:00 h · Asesor: Carlos N.</span>
+                                        <span>Laura Méndez · 09:00 h<?= $nombreSesionHtml === '' ? '' : ' · Asesor: ' . $nombreSesionHtml ?></span>
                                     </span>
                                 </li>
                                 <li>

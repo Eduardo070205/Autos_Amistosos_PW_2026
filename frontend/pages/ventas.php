@@ -2,7 +2,6 @@
 declare(strict_types=1);
 session_start();
 require_once __DIR__ . '/../../backend/repositories/venta_dao.php';
-$_SESSION['csrf_ventas'] ??= bin2hex(random_bytes(32));
 $aviso = $_SESSION['aviso_venta'] ?? null;
 unset($_SESSION['aviso_venta']);
 
@@ -147,7 +146,6 @@ function escaparVenta(string $valor): string
                 </div>
                 <form method="post" action="../../backend/scripts/ventas/ventas_bajas_procesar.php" id="eliminar-venta-form">
                     <input type="hidden" name="id" id="eliminar-venta-id">
-                    <input type="hidden" name="csrf_token" value="<?= escaparVenta($_SESSION['csrf_ventas']) ?>">
                     <div class="modal-footer">
                         <button type="button" class="btn btn-ghost" data-bs-dismiss="modal" id="cancelar-baja-venta">Cancelar</button>
                         <button type="submit" class="btn danger-btn" id="confirmar-baja-venta" disabled>Sí, eliminar</button>

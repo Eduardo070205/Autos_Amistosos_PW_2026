@@ -15,13 +15,6 @@ try {
     $dao = new UsuarioDAO($pdo);
     exigirAdministrador($dao, '../../../frontend/pages/login.php');
 
-    $token = $_POST['csrf_token'] ?? null;
-    $tokenSesion = $_SESSION['csrf_baja_usuario'] ?? null;
-    if (!is_string($token) || !is_string($tokenSesion) || !hash_equals($tokenSesion, $token)) {
-        http_response_code(403);
-        exit('Solicitud inválida.');
-    }
-
     $id = $_POST['id_usuario'] ?? null;
     $usuario = is_string($id) && $id !== '' ? $dao->consultarUsuarioID($id) : false;
     if ($usuario === false) {

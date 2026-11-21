@@ -2,7 +2,6 @@
 declare(strict_types=1);
 session_start();
 require_once __DIR__ . '/../../backend/repositories/venta_dao.php';
-$_SESSION['csrf_ventas'] ??= bin2hex(random_bytes(32));
 $formulario = $_SESSION['formulario_venta'] ?? [];
 unset($_SESSION['formulario_venta']);
 $editar = array_key_exists('id', $_GET);
@@ -102,7 +101,6 @@ function escaparVenta(string $valor): string
                 <?php else: ?>
                 <form class="card sales-section" id="registrar-venta" aria-labelledby="captura-titulo"
                       method="post" action="../../backend/scripts/ventas/<?= $procesador ?>">
-                    <input type="hidden" name="csrf_token" value="<?= escaparVenta($_SESSION['csrf_ventas']) ?>">
                     <?php if ($editar): ?><input type="hidden" name="id" value="<?= $idEdicion ?>"><?php endif; ?>
                     <div class="card-head"><h2 id="captura-titulo"><?= $tituloFormulario ?><?= $editar ? ' #' . $idEdicion : '' ?></h2></div>
                     <?php if ($errorFormulario !== null || $errores !== [] || !$puedeGuardar): ?>

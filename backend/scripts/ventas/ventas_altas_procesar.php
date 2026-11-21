@@ -12,12 +12,6 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
 }
 
 session_start();
-$token = $_POST['csrf_token'] ?? null;
-$tokenSesion = $_SESSION['csrf_ventas'] ?? null;
-if (!is_string($token) || !is_string($tokenSesion) || $tokenSesion === '' || !hash_equals($tokenSesion, $token)) {
-    http_response_code(403);
-    exit('Solicitud inválida. Vuelve a abrir la pantalla de ventas.');
-}
 unset($_SESSION['aviso_venta'], $_SESSION['formulario_venta']);
 
 $datos = [];

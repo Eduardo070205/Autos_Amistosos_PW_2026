@@ -15,7 +15,6 @@ try {
     exit('No se pudo cargar la lista de usuarios.');
 }
 
-$csrfBaja = $_SESSION['csrf_baja_usuario'] ??= bin2hex(random_bytes(32));
 $aviso = $_SESSION['aviso_baja_usuario'] ?? [];
 unset($_SESSION['aviso_baja_usuario']);
 
@@ -77,7 +76,6 @@ function escaparUsuario(string $valor): string
                                         <?php else: ?>
                                             <form method="post" action="../../backend/scripts/usuarios/usuarios_bajas_procesar.php"
                                                 onsubmit="return window.confirm('¿Eliminar este usuario?');">
-                                                <input type="hidden" name="csrf_token" value="<?= escaparUsuario($csrfBaja) ?>">
                                                 <input type="hidden" name="id_usuario" value="<?= escaparUsuario($id) ?>">
                                                 <button type="submit" class="btn btn-sm btn-outline-danger"
                                                     aria-label="Eliminar usuario <?= escaparUsuario($id) ?>">Eliminar</button>
