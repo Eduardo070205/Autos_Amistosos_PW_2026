@@ -6,13 +6,24 @@ $aviso = $_SESSION['aviso_venta'] ?? null;
 unset($_SESSION['aviso_venta']);
 
 $ventas = [];
+$bitacoraVentas = [];
 $errorHistorial = false;
 try {
     $pdo = require __DIR__ . '/../../backend/config/database/conexion_bd.php';
-    $ventas = (new VentaDAO($pdo))->consultarVentas();
+    $dao = new VentaDAO($pdo);
+    $ventas = $dao->consultarVentas();
 } catch (PDOException $e) {
     error_log('Error al consultar ventas: ' . $e->getMessage());
     $errorHistorial = true;
+}
+
+if ($ventas !== []) {
+    try {
+        $bitacoraVentas = $dao->consultarBitacoraVentas();
+    } catch (PDOException $e) {
+        error_log('Error al consultar la bitácora de ventas: ' . $e->getCode());
+        $bitacoraVentas = null;
+    }
 }
 
 function escaparVenta(string $valor): string
@@ -112,7 +123,11 @@ function escaparVenta(string $valor): string
                                                         'VIN' => $venta['Numero_Serie'],
                                                         'Forma de pago' => $venta['Forma_Pago'],
                                                         'Precio final (MXN)' => '$' . number_format((float) $venta['Precio_Final'], 2),
-                                                    ], JSON_INVALID_UTF8_SUBSTITUTE)) ?>">Detalles</button>
+                                                    ], JSON_INVALID_UTF8_SUBSTITUTE)) ?>"
+                                                    data-bitacora-venta="<?= escaparVenta(json_encode(
+                                                        $bitacoraVentas === null ? null : ($bitacoraVentas[$venta['ID_Venta']] ?? []),
+                                                        JSON_INVALID_UTF8_SUBSTITUTE
+                                                    )) ?>">Detalles</button>
                                                 <?php if ($venta['Estado_Venta'] === 'Activa'): ?>
                                                     <a class="btn btn-sm btn-outline-primary" href="formulario_venta.php?id=<?= (int) $venta['ID_Venta'] ?>">Modificar</a>
                                                     <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal"
@@ -136,6 +151,9 @@ function escaparVenta(string $valor): string
         <div class="dialog-body">
             <h2 id="detalles-venta-titulo">Detalles de la venta</h2>
             <dl id="detalles-venta-datos"></dl>
+            <h3 class="fs-6">Historial de la venta</h3>
+            <p id="bitacora-venta-aviso" hidden></p>
+            <ul id="bitacora-venta-eventos" hidden></ul>
             <form method="dialog"><button class="btn btn-primary">Cerrar</button></form>
         </div>
     </dialog>

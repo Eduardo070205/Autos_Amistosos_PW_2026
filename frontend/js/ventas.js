@@ -54,11 +54,25 @@ if (!buscarVenta.disabled) {
 const historialVentas = document.getElementById('filas-ventas');
 const dialogoVenta = document.getElementById('detalles-venta');
 const detalleVenta = document.getElementById('detalles-venta-datos');
+const avisoBitacora = document.getElementById('bitacora-venta-aviso');
+const eventosBitacora = document.getElementById('bitacora-venta-eventos');
 historialVentas.addEventListener('click', event => {
     const boton = event.target.closest('[data-detalles-venta]');
     if (!boton) return;
 
     detalleVenta.replaceChildren();
+    const movimientos = JSON.parse(boton.dataset.bitacoraVenta);
+    eventosBitacora.replaceChildren();
+    for (const { evento, fecha } of movimientos ?? []) {
+        const fila = document.createElement('li');
+        fila.textContent = `${evento} · ${fecha}`;
+        eventosBitacora.append(fila);
+    }
+    eventosBitacora.hidden = !movimientos?.length;
+    avisoBitacora.hidden = !eventosBitacora.hidden;
+    avisoBitacora.textContent = movimientos === null
+        ? 'No se pudo cargar la bitácora.'
+        : 'Sin movimientos en la bitácora.';
     for (const [label, value] of Object.entries(JSON.parse(boton.dataset.detallesVenta))) {
         const termino = document.createElement('dt');
         const descripcion = document.createElement('dd');

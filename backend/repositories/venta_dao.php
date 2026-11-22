@@ -74,6 +74,25 @@ class VentaDAO implements VentaEscritura, VentaLectura
         return $this->conexion->query(self::CONSULTA_VENTAS . self::ORDEN_VENTAS)->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function consultarBitacoraVentas(): array
+    {
+        $stmt = $this->conexion->query(
+            'SELECT b.ID_Venta, b.Evento, b.Fecha_Evento
+             FROM bitacora_ventas AS b INNER JOIN ventas AS v ON v.ID_Venta = b.ID_Venta
+             ORDER BY b.ID_Venta, b.ID_Bitacora'
+        );
+
+        $bitacora = [];
+        foreach ($stmt as $movimiento) {
+            $bitacora[$movimiento['ID_Venta']][] = [
+                'evento' => $movimiento['Evento'],
+                'fecha' => $movimiento['Fecha_Evento'],
+            ];
+        }
+
+        return $bitacora;
+    }
+
     public function consultarVentaID(int $idVenta)
     {
         $stmt = $this->conexion->prepare(self::CONSULTA_VENTAS . ' WHERE v.ID_Venta = ?');
