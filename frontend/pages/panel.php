@@ -1,4 +1,21 @@
-<?php session_start(); ?>
+<?php
+session_start();
+
+require_once __DIR__ . '/../../backend/repositories/venta_dao.php';
+
+$ventasDelMes = null;
+try {
+    $pdo = require __DIR__ . '/../../backend/config/database/conexion_bd.php';
+    $hoy = new DateTimeImmutable('now', new DateTimeZone('America/Mexico_City'));
+
+    $ventasDelMes = (new VentaDAO($pdo))->contarVentasMes(
+        (int) $hoy->format('Y'),
+        (int) $hoy->format('n')
+    );
+} catch (PDOException $e) {
+    error_log('Error al contar las ventas del mes: ' . $e->getCode());
+}
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -76,7 +93,7 @@
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3h16v18l-3-2-2 2-2-2-2 2-2-2-3 2z"/><path d="M8 8h8M8 12h8"/></svg>
                         </span>
                         <p class="label">Ventas del mes</p>
-                        <p class="value">46</p>
+                        <p class="value"><?= $ventasDelMes ?? '—' ?></p>
                         <p class="delta up">▲ 18% <span>vs. agosto</span></p>
                     </article>
 

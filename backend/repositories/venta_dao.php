@@ -116,4 +116,12 @@ class VentaDAO implements VentaEscritura, VentaLectura
             $venta->getIdVehiculo(),
         ];
     }
+
+    public function contarVentasMes(int $anio, int $mes): int
+    {
+        $stmt = $this->conexion->prepare('SELECT total_ventas_mes(?, ?)');
+        $stmt->execute([$anio, $mes]);
+
+        return (int) $stmt->fetchColumn();
+    }
 }
