@@ -8,17 +8,7 @@ class VentaDAO implements VentaEscritura, VentaLectura
 {
     private PDO $conexion;
 
-    private const CONSULTA_VENTAS = "
-        SELECT v.ID_Venta, v.Fecha_Venta, v.Precio_Final, v.Forma_Pago,
-               v.ID_Cliente, v.ID_Empleado, v.ID_Vehiculo,
-               CONCAT_WS(' ', c.Nombre, c.Primer_Apellido, c.Segundo_Apellido) AS Cliente,
-               CONCAT_WS(' ', e.Nombre, e.Primer_Apellido, e.Segundo_Apellido) AS Empleado,
-               u.Numero_Serie, m.Nombre_Modelo
-        FROM ventas v
-        INNER JOIN clientes c ON c.ID_Cliente = v.ID_Cliente
-        INNER JOIN empleados e ON e.ID_Empleado = v.ID_Empleado
-        INNER JOIN vehiculos u ON u.ID_Vehiculo = v.ID_Vehiculo
-        INNER JOIN modelos m ON m.ID_Modelo = u.ID_Modelo";
+    private const CONSULTA_VENTAS = 'SELECT v.* FROM vista_ventas AS v';
 
     private const ORDEN_VENTAS = ' ORDER BY v.Fecha_Venta DESC, v.ID_Venta DESC';
 
@@ -87,8 +77,8 @@ class VentaDAO implements VentaEscritura, VentaLectura
             'id_cliente' => 'v.ID_Cliente = ?',
             'id_empleado' => 'v.ID_Empleado = ?',
             'id_vehiculo' => 'v.ID_Vehiculo = ?',
-            'cliente' => "LOCATE(?, CONCAT_WS(' ', c.Nombre, c.Primer_Apellido, c.Segundo_Apellido)) > 0",
-            'vin' => 'LOCATE(?, u.Numero_Serie) > 0',
+            'cliente' => 'LOCATE(?, v.Cliente) > 0',
+            'vin' => 'LOCATE(?, v.Numero_Serie) > 0',
         ];
         if (!isset($condiciones[$criterio])) {
             throw new InvalidArgumentException('Criterio de búsqueda no permitido.');
