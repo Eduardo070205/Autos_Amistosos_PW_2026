@@ -35,8 +35,13 @@ if ($errores === []) {
         $pdo = require __DIR__ . '/../../config/database/conexion_bd.php';
         $dao = new VentaDAO($pdo);
         $servicio = new VentaServicio($dao);
-        if ($dao->consultarVentaID($idVenta) === false) {
+        $ventaActual = $dao->consultarVentaID($idVenta);
+        if ($ventaActual === false) {
             $error = 'La venta ya no existe.';
+        } elseif ($ventaActual['Estado_Venta'] !== 'Activa') {
+            $error = 'La venta ya fue cancelada.';
+        } elseif ($ventaActual['ID_Vehiculo'] !== $datos['id_vehiculo']) {
+            $error = 'El vehículo de una venta registrada se conserva.';
         } elseif (!$servicio->actualizarVenta($idVenta, $datos)) {
             $error = 'No se pudo actualizar la venta.';
         }

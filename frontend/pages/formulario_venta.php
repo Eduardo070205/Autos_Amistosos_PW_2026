@@ -22,14 +22,16 @@ try {
                             FROM clientes ORDER BY Nombre_Completo, ID_Cliente")->fetchAll();
     $empleados = $pdo->query("SELECT ID_Empleado, CONCAT_WS(' ', Nombre, Primer_Apellido, Segundo_Apellido) AS Nombre_Completo
                              FROM empleados ORDER BY Nombre_Completo, ID_Empleado")->fetchAll();
+    $filtroVehiculos = $editar ? '' : " WHERE v.Estado = 'Disponible' AND NOT EXISTS (
+        SELECT 1 FROM ventas WHERE ID_Vehiculo = v.ID_Vehiculo AND Estado_Venta = 'Activa'
+    )";
     $vehiculos = $pdo->query('SELECT v.ID_Vehiculo, v.Numero_Serie, v.Estado, v.Precio, m.Nombre_Modelo
-                             FROM vehiculos v INNER JOIN modelos m ON m.ID_Modelo = v.ID_Modelo
-                             ORDER BY m.Nombre_Modelo, v.ID_Vehiculo')->fetchAll();
+                             FROM vehiculos v INNER JOIN modelos m ON m.ID_Modelo = v.ID_Modelo'
+                             . $filtroVehiculos . ' ORDER BY m.Nombre_Modelo, v.ID_Vehiculo')->fetchAll();
 } catch (PDOException $e) {
     error_log('Error al cargar opciones de venta: ' . $e->getMessage());
     $errorCatalogos = 'No se pudieron cargar las opciones del formulario. Recarga la página e intenta de nuevo.';
 }
-$puedeGuardar = $errorCatalogos === null && $clientes !== [] && $empleados !== [] && $vehiculos !== [];
 $errorEdicion = null;
 if ($editar) {
     if ($idEdicion === false) {
@@ -41,6 +43,9 @@ if ($editar) {
             if ($ventaEdicion === false) {
                 http_response_code(404);
                 $errorEdicion = 'La venta ya no existe.';
+            } elseif ($ventaEdicion['Estado_Venta'] !== 'Activa') {
+                http_response_code(409);
+                $errorEdicion = 'La venta ya fue cancelada.';
             } else {
                 $datos += [
                     'fecha_venta' => $ventaEdicion['Fecha_Venta'],
@@ -48,8 +53,8 @@ if ($editar) {
                     'forma_pago' => $ventaEdicion['Forma_Pago'],
                     'id_cliente' => $ventaEdicion['ID_Cliente'],
                     'id_empleado' => $ventaEdicion['ID_Empleado'],
-                    'id_vehiculo' => $ventaEdicion['ID_Vehiculo'],
                 ];
+                $datos['id_vehiculo'] = $ventaEdicion['ID_Vehiculo'];
             }
         } catch (PDOException $e) {
             error_log('Error al cargar la venta: ' . $e->getMessage());
@@ -59,6 +64,11 @@ if ($editar) {
         $errorEdicion = 'No se pudo cargar la venta.';
     }
 }
+if ($editar) {
+    $vehiculos = array_filter($vehiculos, static fn (array $vehiculo): bool =>
+        $vehiculo['ID_Vehiculo'] === ($ventaEdicion['ID_Vehiculo'] ?? null));
+}
+$puedeGuardar = $errorCatalogos === null && $clientes !== [] && $empleados !== [] && $vehiculos !== [];
 $tituloFormulario = $editar ? 'Modificar venta' : 'Registrar venta';
 $procesador = $editar ? 'ventas_cambios_procesar.php' : 'ventas_altas_procesar.php';
 $formasPago = ['Transferencia', 'Efectivo', 'Tarjeta', 'Financiamiento'];
@@ -135,7 +145,7 @@ function escaparVenta(string $valor): string
                                     <div class="model-field">
                                         <label for="venta-unidad">Vehículo</label>
                                         <select id="venta-unidad" name="id_vehiculo" class="form-select" required>
-                                            <option value="">Selecciona un vehículo</option>
+                                            <?php if (!$editar): ?><option value="">Selecciona un vehículo</option><?php endif; ?>
                                             <?php foreach ($vehiculos as $vehiculo): ?>
                                                 <option value="<?= escaparVenta($vehiculo['ID_Vehiculo']) ?>"
                                                     data-modelo="<?= escaparVenta($vehiculo['Nombre_Modelo']) ?>"

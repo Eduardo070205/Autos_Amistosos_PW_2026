@@ -78,8 +78,8 @@ modalBajaVenta.addEventListener('show.bs.modal', event => {
     idBajaVenta.value = event.relatedTarget?.dataset.id ?? '';
     confirmarBajaVenta.disabled = !folioBajaValido();
     document.getElementById('eliminar-venta-mensaje').textContent = folioBajaValido()
-        ? `¿Quieres eliminar la venta #${idBajaVenta.value}?`
-        : 'Selecciona una venta para eliminar.';
+        ? `¿Quieres cancelar la venta #${idBajaVenta.value}?`
+        : 'Selecciona una venta para cancelar.';
 });
 modalBajaVenta.addEventListener('shown.bs.modal', () => {
     document.getElementById('cancelar-baja-venta').focus();

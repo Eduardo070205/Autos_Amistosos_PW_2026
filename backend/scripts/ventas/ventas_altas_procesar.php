@@ -32,9 +32,11 @@ if ($errores === []) {
         }
     } catch (PDOException $e) {
         error_log('Error al registrar venta: ' . $e->getMessage());
-        $error = (int) ($e->errorInfo[1] ?? 0) === 1452
-            ? 'El cliente, empleado o vehículo seleccionado ya no está disponible.'
-            : 'No se pudo registrar la venta. Intenta de nuevo.';
+        $error = match ($e->getCode()) {
+            '45000' => $e->errorInfo[2],
+            '23000' => 'El cliente, empleado o vehículo seleccionado ya no está disponible.',
+            default => 'No se pudo registrar la venta. Intenta de nuevo.',
+        };
     }
 }
 

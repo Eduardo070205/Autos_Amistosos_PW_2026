@@ -81,6 +81,7 @@ function escaparVenta(string $valor): string
                                 <th scope="col">Vehículo</th>
                                 <th scope="col">Forma de pago</th>
                                 <th scope="col">Precio final</th>
+                                <th scope="col">Estado</th>
                                 <th scope="col">Acciones</th>
                             </tr></thead>
                             <tbody id="filas-ventas">
@@ -97,6 +98,9 @@ function escaparVenta(string $valor): string
                                         <td><?= escaparVenta($venta['Forma_Pago']) ?></td>
                                         <td>$<?= number_format((float) $venta['Precio_Final'], 2) ?></td>
                                         <td>
+                                            <?= escaparVenta($venta['Estado_Venta']) ?>
+                                        </td>
+                                        <td>
                                             <div class="d-flex flex-wrap gap-1">
                                                 <button type="button" class="btn btn-sm btn-outline-secondary"
                                                     data-detalles-venta="<?= escaparVenta(json_encode([
@@ -109,15 +113,17 @@ function escaparVenta(string $valor): string
                                                         'Forma de pago' => $venta['Forma_Pago'],
                                                         'Precio final (MXN)' => '$' . number_format((float) $venta['Precio_Final'], 2),
                                                     ], JSON_INVALID_UTF8_SUBSTITUTE)) ?>">Detalles</button>
-                                                <a class="btn btn-sm btn-outline-primary" href="formulario_venta.php?id=<?= (int) $venta['ID_Venta'] ?>">Modificar</a>
-                                                <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal"
-                                                    data-bs-target="#eliminar-venta-modal" data-id="<?= (int) $venta['ID_Venta'] ?>">Eliminar</button>
+                                                <?php if ($venta['Estado_Venta'] === 'Activa'): ?>
+                                                    <a class="btn btn-sm btn-outline-primary" href="formulario_venta.php?id=<?= (int) $venta['ID_Venta'] ?>">Modificar</a>
+                                                    <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal"
+                                                        data-bs-target="#eliminar-venta-modal" data-id="<?= (int) $venta['ID_Venta'] ?>">Cancelar venta</button>
+                                                <?php endif; ?>
                                             </div>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
                                 <tr id="ventas-sin-resultados" <?= $ventas !== [] ? 'hidden' : '' ?>>
-                                    <td colspan="8" class="empty"><?= $errorHistorial ? 'No se pudo cargar el historial de ventas.' : 'Aún no hay ventas registradas.' ?></td>
+                                    <td colspan="9" class="empty"><?= $errorHistorial ? 'No se pudo cargar el historial de ventas.' : 'Aún no hay ventas registradas.' ?></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -137,18 +143,18 @@ function escaparVenta(string $valor): string
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h2 class="modal-title fs-5" id="eliminar-venta-titulo">¿Eliminar venta?</h2>
+                    <h2 class="modal-title fs-5" id="eliminar-venta-titulo">¿Cancelar venta?</h2>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
                 <div class="modal-body">
                     <p id="eliminar-venta-mensaje"></p>
-                    <p class="text-danger mt-2" id="eliminar-venta-advertencia">Esta acción no se puede deshacer.</p>
+                    <p class="text-danger mt-2" id="eliminar-venta-advertencia">La venta quedará en el historial y el vehículo volverá al inventario.</p>
                 </div>
                 <form method="post" action="../../backend/scripts/ventas/ventas_bajas_procesar.php" id="eliminar-venta-form">
                     <input type="hidden" name="id" id="eliminar-venta-id">
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-ghost" data-bs-dismiss="modal" id="cancelar-baja-venta">Cancelar</button>
-                        <button type="submit" class="btn danger-btn" id="confirmar-baja-venta" disabled>Sí, eliminar</button>
+                        <button type="button" class="btn btn-ghost" data-bs-dismiss="modal" id="cancelar-baja-venta">Volver</button>
+                        <button type="submit" class="btn danger-btn" id="confirmar-baja-venta" disabled>Sí, cancelar venta</button>
                     </div>
                 </form>
             </div>

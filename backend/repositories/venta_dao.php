@@ -8,7 +8,8 @@ class VentaDAO implements VentaEscritura, VentaLectura
 {
     private PDO $conexion;
 
-    private const CONSULTA_VENTAS = 'SELECT v.* FROM vista_ventas AS v';
+    private const CONSULTA_VENTAS = 'SELECT v.*, venta.Estado_Venta
+        FROM vista_ventas AS v INNER JOIN ventas AS venta ON venta.ID_Venta = v.ID_Venta';
 
     private const ORDEN_VENTAS = ' ORDER BY v.Fecha_Venta DESC, v.ID_Venta DESC';
 
@@ -19,16 +20,18 @@ class VentaDAO implements VentaEscritura, VentaLectura
 
     public function agregarVenta(Venta $venta): bool
     {
-        $stmt = $this->conexion->prepare(
-            'INSERT INTO ventas (Fecha_Venta, Precio_Final, Forma_Pago, ID_Cliente, ID_Empleado, ID_Vehiculo)
-             VALUES (?, ?, ?, ?, ?, ?)'
-        );
-        $resultado = $stmt->execute($this->datosVenta($venta));
-        if ($resultado) {
-            $venta->setIdVenta((int) $this->conexion->lastInsertId());
+        $stmt = $this->conexion->prepare('CALL registrar_venta(?, ?, ?, ?, ?, ?)');
+        try {
+            $stmt->execute($this->datosVenta($venta));
+            $idVenta = $stmt->fetchColumn();
+            if ($idVenta === false) {
+                return false;
+            }
+            $venta->setIdVenta((int) $idVenta);
+            return true;
+        } finally {
+            $stmt->closeCursor();
         }
-
-        return $resultado;
     }
 
     public function actualizarVenta(Venta $venta): bool
@@ -40,18 +43,30 @@ class VentaDAO implements VentaEscritura, VentaLectura
 
         $stmt = $this->conexion->prepare(
             'UPDATE ventas SET Fecha_Venta = ?, Precio_Final = ?, Forma_Pago = ?,
-                               ID_Cliente = ?, ID_Empleado = ?, ID_Vehiculo = ?
-             WHERE ID_Venta = ?'
+                               ID_Cliente = ?, ID_Empleado = ?
+             WHERE ID_Vehiculo = ? AND ID_Venta = ? AND Estado_Venta = \'Activa\''
         );
         $datos = $this->datosVenta($venta);
         $datos[] = $idVenta;
-        return $stmt->execute($datos);
+        $stmt->execute($datos);
+        if ($stmt->rowCount() === 1) {
+            return true;
+        }
+
+        // MySQL también devuelve cero cuando los valores ya son los mismos.
+        $actual = $this->consultarVentaID($idVenta);
+        return $actual !== false && $actual['Estado_Venta'] === 'Activa'
+            && $actual['ID_Vehiculo'] === $venta->getIdVehiculo();
     }
 
-    public function eliminarVenta(int $idVenta): bool
+    public function cancelarVenta(int $idVenta): bool
     {
-        $stmt = $this->conexion->prepare('DELETE FROM ventas WHERE ID_Venta = ?');
-        return $stmt->execute([$idVenta]);
+        $stmt = $this->conexion->prepare('CALL cancelar_venta(?)');
+        try {
+            return $stmt->execute([$idVenta]);
+        } finally {
+            $stmt->closeCursor();
+        }
     }
 
     public function consultarVentas(): array

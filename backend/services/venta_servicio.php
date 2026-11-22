@@ -22,9 +22,9 @@ class VentaServicio
         return $this->repositorio->actualizarVenta($this->crearVenta($datos, $idVenta));
     }
 
-    public function eliminarVenta(int $idVenta): bool
+    public function cancelarVenta(int $idVenta): bool
     {
-        return $this->repositorio->eliminarVenta($idVenta);
+        return $this->repositorio->cancelarVenta($idVenta);
     }
 
     // Recibe datos del formulario ya normalizados y validados.

@@ -26,19 +26,19 @@ try {
     $pdo = require __DIR__ . '/../../config/database/conexion_bd.php';
     $dao = new VentaDAO($pdo);
     $servicio = new VentaServicio($dao);
-    if ($dao->consultarVentaID($idVenta) === false) {
-        $error = 'La venta ya no existe.';
-    } elseif (!$servicio->eliminarVenta($idVenta)) {
-        $error = 'No se pudo eliminar la venta.';
+    if (!$servicio->cancelarVenta($idVenta)) {
+        $error = 'No se pudo cancelar la venta.';
     }
 } catch (PDOException $e) {
-    error_log('Error al eliminar venta: ' . $e->getMessage());
-    $error = 'No se pudo eliminar la venta. Intenta de nuevo.';
+    error_log('Error al cancelar venta: ' . $e->getMessage());
+    $error = $e->getCode() === '45000'
+        ? $e->errorInfo[2]
+        : 'No se pudo cancelar la venta. Intenta de nuevo.';
 }
 
 $_SESSION['aviso_venta'] = [
     'correcto' => $error === null,
-    'mensaje' => $error ?? 'Venta eliminada correctamente.',
+    'mensaje' => $error ?? 'Venta cancelada correctamente. El vehículo regresó al inventario.',
 ];
 header('Location: ../../../frontend/pages/ventas.php', true, 303);
 exit;

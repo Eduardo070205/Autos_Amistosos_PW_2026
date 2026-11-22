@@ -9,5 +9,5 @@ interface VentaEscritura
 
     public function actualizarVenta(Venta $venta): bool;
 
-    public function eliminarVenta(int $idVenta): bool;
+    public function cancelarVenta(int $idVenta): bool;
 }
