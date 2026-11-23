@@ -27,6 +27,16 @@ class UsuarioServicio
         return $this->repositorio->agregarUsuario($this->crearUsuario($datos, $idRol));
     }
 
+    public function actualizarUsuario(array $datos, int $idRol): bool
+    {
+        return $this->repositorio->actualizarUsuario($this->crearUsuario($datos, $idRol));
+    }
+
+    public function eliminarUsuario(string $id): bool
+    {
+        return $this->repositorio->eliminarUsuario($id);
+    }
+
     /** @return array|false Datos del usuario autenticado o false si las credenciales son incorrectas. */
     public function autenticarUsuario(array $datos): array|false
     {
@@ -51,7 +61,7 @@ class UsuarioServicio
             $datos['id_usuario'],
             trim($datos['usuario'], ' '),
             trim($datos['email']),
-            sha1($datos['password']),
+            isset($datos['password']) ? sha1($datos['password']) : null,
             $idRol
         );
     }

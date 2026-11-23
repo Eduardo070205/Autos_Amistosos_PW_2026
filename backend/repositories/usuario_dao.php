@@ -24,11 +24,17 @@ class UsuarioDAO implements UsuarioLectura, UsuarioEscritura
 
     public function actualizarUsuario(Usuario $usuario): bool
     {
-        $sql = 'UPDATE users SET Nombre_User = :nombre, Correo = :correo, `Password` = :password,
-            ID_Rol = :rol WHERE ID_User = :id';
+        $parametros = $this->parametrosUsuario($usuario);
+        $sql = 'UPDATE users SET Nombre_User = :nombre, Correo = :correo, ID_Rol = :rol';
+        if ($parametros['password'] === null) {
+            unset($parametros['password']);
+        } else {
+            $sql .= ', `Password` = :password';
+        }
+        $sql .= ' WHERE ID_User = :id';
         $stmt = $this->conexion->prepare($sql);
 
-        return $stmt->execute($this->parametrosUsuario($usuario));
+        return $stmt->execute($parametros);
     }
 
     private function parametrosUsuario(Usuario $usuario): array
@@ -63,6 +69,23 @@ class UsuarioDAO implements UsuarioLectura, UsuarioEscritura
         return $stmt->fetchColumn() !== false;
     }
 
+    public function consultarRolUsuario(string $idUsuario): string|false
+    {
+        $stmt = $this->conexion->prepare(
+            'SELECT r.Rol FROM users u JOIN roles r ON r.ID_Rol = u.ID_Rol WHERE u.ID_User = ?'
+        );
+        $stmt->execute([$idUsuario]);
+        return $stmt->fetchColumn();
+    }
+
+    public function consultarIdRol(string $rol): int|false
+    {
+        $stmt = $this->conexion->prepare('SELECT ID_Rol FROM roles WHERE Rol = ?');
+        $stmt->execute([$rol]);
+        $id = $stmt->fetchColumn();
+        return $id === false ? false : (int) $id;
+    }
+
     public function consultarUsuariosConRol(): array
     {
         return $this->conexion->query(
@@ -78,9 +101,12 @@ class UsuarioDAO implements UsuarioLectura, UsuarioEscritura
         return $this->conexion->query($sql)->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function consultarUsuarioID(string $idUsuario)
+    public function consultarUsuarioID(string $idUsuario, bool $bloquear = false)
     {
         $sql = 'SELECT ID_User, Nombre_User, Correo, ID_Rol FROM users WHERE ID_User = ?';
+        if ($bloquear) {
+            $sql .= ' FOR UPDATE';
+        }
         $stmt = $this->conexion->prepare($sql);
         $stmt->execute([$idUsuario]);
 

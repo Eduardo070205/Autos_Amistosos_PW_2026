@@ -100,6 +100,13 @@ class VentaDAO implements VentaEscritura, VentaLectura
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    public function consultarVentaParaCambio(int $idVenta): array|false
+    {
+        $stmt = $this->conexion->prepare('SELECT * FROM ventas WHERE ID_Venta = ? FOR UPDATE');
+        $stmt->execute([$idVenta]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
     public function consultarVentasBusqueda(string $criterio, string $valor): array
     {
         // Solo se agregan condiciones SQL definidas aquí. El valor se envía por separado.

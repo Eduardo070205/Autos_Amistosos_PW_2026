@@ -101,9 +101,12 @@ class VehiculoDAO implements VehiculoEscritura, VehiculoLectura
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function consultarVehiculoID(string $idVehiculo)
+    public function consultarVehiculoID(string $idVehiculo, bool $bloquear = false)
     {
         $sql = 'SELECT * FROM vehiculos WHERE ID_Vehiculo = ?';
+        if ($bloquear) {
+            $sql .= ' FOR UPDATE';
+        }
         $stmt = $this->conexion->prepare($sql);
         $stmt->execute([$idVehiculo]);
         return $stmt->fetch(PDO::FETCH_ASSOC);

@@ -14,7 +14,13 @@ class VentaServicio
 
     public function agregarVenta(array $datos): bool
     {
-        return $this->repositorio->agregarVenta($this->crearVenta($datos));
+        return $this->registrarVenta($datos) !== null;
+    }
+
+    public function registrarVenta(array $datos): ?Venta
+    {
+        $venta = $this->crearVenta($datos);
+        return $this->repositorio->agregarVenta($venta) ? $venta : null;
     }
 
     public function actualizarVenta(int $idVenta, array $datos): bool
