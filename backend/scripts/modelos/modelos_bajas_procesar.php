@@ -25,11 +25,8 @@ try {
     $pdo = require __DIR__ . '/../../config/database/conexion_bd.php';
     $dao = new ModeloDAO($pdo);
     $servicio = new ModeloServicio($dao);
-    // Si ya fue eliminado por otra peticion, informar en lugar de continuar.
-    if ($dao->consultarModeloID($id) === false) {
+    if (!$servicio->eliminarModelo($id)) {
         $error = 'El modelo ya no existe.';
-    } elseif (!$servicio->eliminarModelo($id)) {
-        $error = 'No se pudo eliminar el modelo.';
     }
 // Por ejemplo, una clave foranea puede impedir borrar un modelo en uso.
 } catch (PDOException $e) {

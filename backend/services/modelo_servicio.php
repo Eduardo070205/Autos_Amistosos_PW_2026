@@ -34,9 +34,14 @@ class ModeloServicio
     // Recibe datos que ya pasaron la validación.
     public function agregarModelo(array $datos): bool
     {
+        return $this->registrarModelo($datos) !== null;
+    }
+
+    public function registrarModelo(array $datos): ?Modelo
+    {
         $modelo = $this->crearModelo($datos);
 
-        return $this->repositorio->agregarModelo($modelo);
+        return $this->repositorio->agregarModelo($modelo) ? $modelo : null;
     }
 
     // Recibe datos que ya pasaron la validación.

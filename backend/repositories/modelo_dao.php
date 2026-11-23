@@ -52,8 +52,8 @@ class ModeloDAO implements ModeloEscritura, ModeloLectura
         // WHERE limita la baja al ID indicado. El ? se envia separado del SQL.
         $sql = 'DELETE FROM modelos WHERE ID_Modelo = ?';
         $stmt = $this->conexion->prepare($sql);
-        // true indica ejecucion correcta; no garantiza por si solo que existiera una fila.
-        return $stmt->execute([$idModelo]);
+        $stmt->execute([$idModelo]);
+        return $stmt->rowCount() > 0;
     }
 
     // ---------------- CAMBIOS ----------------
