@@ -95,9 +95,12 @@ class ModeloDAO implements ModeloEscritura, ModeloLectura
 
     /** Devuelve todos los campos o false si el ID no existe. */
     // Se usa para cargar el formulario y comprobar que el registro exista.
-    public function consultarModeloID(int $idModelo)
+    public function consultarModeloID(int $idModelo, bool $bloquear = false)
     {
         $sql = 'SELECT * FROM modelos WHERE ID_Modelo = ?';
+        if ($bloquear) {
+            $sql .= ' FOR UPDATE';
+        }
         $stmt = $this->conexion->prepare($sql);
         $stmt->execute([$idModelo]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
