@@ -62,7 +62,7 @@ try {
 
                 <div class="page-head">
                     <div>
-                        <h1>Buenas tardes<?= $nombreSesionHtml === '' ? '' : ', ' . $nombreSesionHtml ?></h1>
+                        <h1><span id="saludo-panel">Hola</span><?= $nombreSesionHtml === '' ? '' : ', ' . $nombreSesionHtml ?></h1>
                         <p>Este es el resumen operativo de Autos Amistosos al 3 de septiembre de 2026.</p>
                     </div>
                     <div style="display:flex; gap:10px; flex-wrap:wrap;">
@@ -355,5 +355,22 @@ try {
         </div>
     </div>
 
+    <script>
+        const saludoPanel = document.getElementById('saludo-panel');
+
+        function actualizarSaludoPanel() {
+            const hora = new Date().getHours();
+            if (hora >= 5 && hora < 12) {
+                saludoPanel.textContent = 'Buenos días';
+            } else if (hora >= 12 && hora < 19) {
+                saludoPanel.textContent = 'Buenas tardes';
+            } else {
+                saludoPanel.textContent = 'Buenas noches';
+            }
+        }
+
+        actualizarSaludoPanel();
+        setInterval(actualizarSaludoPanel, 60000);
+    </script>
 </body>
 </html>

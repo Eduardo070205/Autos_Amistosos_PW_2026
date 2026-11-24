@@ -1,6 +1,11 @@
 <?php
 declare(strict_types=1);
 
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
+
+require_once __DIR__ . '/../../vendor/autoload.php';
+
 final class ErrorApi extends RuntimeException
 {
     public function __construct(int $estado, string $mensaje, public array $campos = [])
@@ -122,14 +127,41 @@ function creadoApi(string $endpoint, string $campoId, int|string $id): array
 
 function requerirActorApi(PDO $pdo, array $roles): string
 {
-    session_start(['use_strict_mode' => true, 'read_and_close' => true]);
-    $id = $_SESSION['id_usuario'] ?? null;
-    if (!is_string($id)) {
+    $encabezados = array_change_key_case(getallheaders(), CASE_LOWER);
+    $autorizacion = $_SERVER['HTTP_AUTHORIZATION']
+        ?? $encabezados['authorization']
+        ?? '';
+
+    if ($autorizacion !== '') {
+        if (!preg_match('/\ABearer[ \t]+(\S+)\z/i', $autorizacion, $partes)) {
+            throw new ErrorApi(401, 'Encabezado de autorización inválido.');
+        }
+
+        $clave = getenv('AUTOS_AMISTOSOS_JWT_SECRET');
+        if ($clave === false || !preg_match('/\A[0-9a-f]{64}\z/', $clave)) {
+            throw new ErrorApi(500, 'La clave de firma JWT no está configurada correctamente.');
+        }
+
+        try {
+            $contenido = JWT::decode($partes[1], new Key(hex2bin($clave), 'HS256'));
+        } catch (\UnexpectedValueException | \DomainException $e) {
+            throw new ErrorApi(401, 'Token inválido o vencido.');
+        }
+
+        $id = $contenido->sub ?? null;
+    } else {
+        session_start(['use_strict_mode' => true, 'read_and_close' => true]);
+        $id = $_SESSION['id_usuario'] ?? null;
+    }
+
+    if (!is_string($id) || $id === '') {
         throw new ErrorApi(401, 'Inicia sesión para continuar.');
     }
+
     $rol = (new UsuarioDAO($pdo))->consultarRolUsuario($id);
     if (!in_array($rol, $roles, true)) {
         throw new ErrorApi(403, 'No tienes permisos para esta operación.');
     }
+
     return $id;
 }
