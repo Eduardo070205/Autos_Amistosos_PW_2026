@@ -1,8 +1,7 @@
 <?php
 declare(strict_types=1);
-use Firebase\JWT\JWT;
 
-require_once __DIR__ . '/../../vendor/autoload.php';
+require_once __DIR__ . '/../services/jwt_servicio.php';
 require_once __DIR__ . '/api_http.php';
 require_once __DIR__ . '/../repositories/usuario_dao.php';
 require_once __DIR__ . '/../services/usuario_servicio.php';
@@ -19,19 +18,11 @@ ejecutarApi(static function (): array {
     }
     $rol = $dao->consultarRolUsuario($usuario['ID_User']);
 
-    $clave = getenv('AUTOS_AMISTOSOS_JWT_SECRET');
-    if ($clave === false || !preg_match('/\A[0-9a-f]{64}\z/', $clave)) {
-        throw new ErrorApi(500, 'La clave de firma JWT no está configurada correctamente.');
+    try {
+        $token = emitirJwt((string) $usuario['ID_User']);
+    } catch (RuntimeException $e) {
+        throw new ErrorApi(500, $e->getMessage());
     }
-
-    $ahora = time();
-    $duracion = 3600;
-
-    $token = JWT::encode([
-        'sub' => (string) $usuario['ID_User'],
-        'iat' => $ahora,
-        'exp' => $ahora + $duracion,
-    ], hex2bin($clave), 'HS256');
 
     if (!session_start(['use_strict_mode' => true, 'cookie_httponly' => true,
         'cookie_secure' => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
@@ -46,6 +37,6 @@ ejecutarApi(static function (): array {
         'datos' => $usuario + ['Rol' => $rol],
         'access_token' => $token,
         'token_type' => 'Bearer',
-        'expires_in' => $duracion,
+        'expires_in' => JWT_DURACION_SEGUNDOS,
     ]];
 }, ['POST']);
