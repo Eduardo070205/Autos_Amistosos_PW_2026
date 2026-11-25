@@ -14,6 +14,14 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
     http_response_code(405);
     exit('Método no permitido.');
 }
+
+require_once __DIR__ . '/../usuarios/exigir_acceso_web.php';
+
+$pdo = exigirAccesoWeb(
+    ['Administrador', 'Empleado'],
+    '../../../frontend/pages/login.php'
+);
+
 // El campo oculto id identifica el registro. Exigir un entero positivo.
 $id = filter_var($_POST['id'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
 if ($id === false || $id === null) {
@@ -32,7 +40,7 @@ $error = null;
 if ($errores === []) {
     try {
         // Construir las dependencias: conexion PDO -> DAO -> servicio.
-        $pdo = require __DIR__ . '/../../config/database/conexion_bd.php';
+        
         $dao = new ModeloDAO($pdo);
         $servicio = new ModeloServicio($dao);
         // Verificar que el registro siga existiendo antes de solicitar el cambio.
