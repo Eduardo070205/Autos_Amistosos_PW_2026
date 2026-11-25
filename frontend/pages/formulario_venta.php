@@ -1,5 +1,7 @@
 <?php
 declare(strict_types=1);
+require_once __DIR__ . '/../../backend/scripts/usuarios/exigir_acceso_web.php';
+$pdo = exigirAccesoWeb(['Administrador', 'Empleado']);
 session_start();
 require_once __DIR__ . '/../../backend/repositories/venta_dao.php';
 $formulario = $_SESSION['formulario_venta'] ?? [];
@@ -17,7 +19,7 @@ $errorFormulario = $recuperar ? $formulario['error'] : null;
 $clientes = $empleados = $vehiculos = [];
 $errorCatalogos = null;
 try {
-    $pdo = require __DIR__ . '/../../backend/config/database/conexion_bd.php';
+    
     $clientes = $pdo->query("SELECT ID_Cliente, CONCAT_WS(' ', Nombre, Primer_Apellido, Segundo_Apellido) AS Nombre_Completo
                             FROM clientes ORDER BY Nombre_Completo, ID_Cliente")->fetchAll();
     $empleados = $pdo->query("SELECT ID_Empleado, CONCAT_WS(' ', Nombre, Primer_Apellido, Segundo_Apellido) AS Nombre_Completo

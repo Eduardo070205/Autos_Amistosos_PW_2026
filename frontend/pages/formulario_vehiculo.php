@@ -1,5 +1,7 @@
 <?php
 declare(strict_types=1);
+require_once __DIR__ . '/../../backend/scripts/usuarios/exigir_acceso_web.php';
+$pdo = exigirAccesoWeb(['Administrador', 'Empleado']);
 session_start();
 
 // Leer los avisos del procesador y consumirlos para no repetirlos al recargar.
@@ -24,7 +26,7 @@ if ($editar) {
     } else {
         require_once __DIR__ . '/../../backend/repositories/vehiculo_dao.php';
         try {
-            $pdo = require __DIR__ . '/../../backend/config/database/conexion_bd.php';
+           
             $vehiculo = (new VehiculoDAO($pdo))->consultarVehiculoID($id);
             if ($vehiculo === false) {
                 http_response_code(404);

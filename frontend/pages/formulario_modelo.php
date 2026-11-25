@@ -1,5 +1,7 @@
 <?php
 declare(strict_types=1);
+require_once __DIR__ . '/../../backend/scripts/usuarios/exigir_acceso_web.php';
+$pdo = exigirAccesoWeb(['Administrador', 'Empleado']);
 require_once __DIR__ . '/../../backend/repositories/modelo_dao.php';
 session_start();
 // Sin ID se muestra un alta; con ID se consultan los datos para modificar.
@@ -22,7 +24,7 @@ if (isset($_GET['id'])) {
         $disponible = false;
     } else {
         try {
-            $pdo = require __DIR__ . '/../../backend/config/database/conexion_bd.php';
+           
             $dao = new ModeloDAO($pdo);
             $registro = $dao->consultarModeloID($id);
             if ($registro === false) {
