@@ -1,10 +1,7 @@
 <?php
 declare(strict_types=1);
 
-use Firebase\JWT\JWT;
-use Firebase\JWT\Key;
-
-require_once __DIR__ . '/../../vendor/autoload.php';
+require_once __DIR__ . '/../services/jwt_servicio.php';
 
 final class ErrorApi extends RuntimeException
 {
@@ -137,18 +134,16 @@ function requerirActorApi(PDO $pdo, array $roles): string
             throw new ErrorApi(401, 'Encabezado de autorización inválido.');
         }
 
-        $clave = getenv('AUTOS_AMISTOSOS_JWT_SECRET');
-        if ($clave === false || !preg_match('/\A[0-9a-f]{64}\z/', $clave)) {
-            throw new ErrorApi(500, 'La clave de firma JWT no está configurada correctamente.');
+        try {
+            $id = obtenerIdDesdeJwt($partes[1]);
+        } catch (RuntimeException $e) {
+            throw new ErrorApi(500, $e->getMessage());
         }
 
-        try {
-            $contenido = JWT::decode($partes[1], new Key(hex2bin($clave), 'HS256'));
-        } catch (\UnexpectedValueException | \DomainException $e) {
+        if ($id === null) {
             throw new ErrorApi(401, 'Token inválido o vencido.');
         }
-
-        $id = $contenido->sub ?? null;
+        
     } else {
         session_start(['use_strict_mode' => true, 'read_and_close' => true]);
         $id = $_SESSION['id_usuario'] ?? null;

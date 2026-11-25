@@ -1,11 +1,14 @@
 <?php
+
+    require_once __DIR__ . '/../../backend/scripts/usuarios/exigir_acceso_web.php';
+    $pdo = exigirAccesoWeb(['Administrador', 'Empleado']);
+
     // Recuperar el resultado de la baja y consumirlo para mostrarlo una sola vez.
     session_start();
     $avisoBaja = $_SESSION['aviso_baja'] ?? null;
     unset($_SESSION['aviso_baja']);
     require_once __DIR__ . '/../../backend/repositories/modelo_dao.php';
 
-    $pdo = require __DIR__ . '/../../backend/config/database/conexion_bd.php';
     $modeloDAO = new ModeloDAO($pdo);
     // PHP consulta MySQL antes de generar las filas de la tabla.
     $modelos = $modeloDAO->consultarModelos();

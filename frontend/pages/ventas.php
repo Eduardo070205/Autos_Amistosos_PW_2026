@@ -1,5 +1,9 @@
 <?php
 declare(strict_types=1);
+
+require_once __DIR__ . '/../../backend/scripts/usuarios/exigir_acceso_web.php';
+$pdo = exigirAccesoWeb(['Administrador', 'Empleado']);
+
 session_start();
 require_once __DIR__ . '/../../backend/repositories/venta_dao.php';
 $aviso = $_SESSION['aviso_venta'] ?? null;
@@ -9,7 +13,7 @@ $ventas = [];
 $bitacoraVentas = [];
 $errorHistorial = false;
 try {
-    $pdo = require __DIR__ . '/../../backend/config/database/conexion_bd.php';
+    
     $dao = new VentaDAO($pdo);
     $ventas = $dao->consultarVentas();
 } catch (PDOException $e) {
