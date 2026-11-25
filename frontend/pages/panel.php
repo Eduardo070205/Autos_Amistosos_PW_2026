@@ -1,11 +1,43 @@
 <?php
+
+require_once __DIR__ . '/../../backend/services/jwt_servicio.php';
+
+$token = $_COOKIE['autos_access_token'] ?? null;
+try {
+    $idUsuario = is_string($token) ? obtenerIdDesdeJwt($token) : null;
+} catch (RuntimeException $e) {
+    error_log($e->getMessage());
+    http_response_code(500);
+    exit('No se pudo verificar la sesión.');
+}
+
+if ($idUsuario === null) {
+    header('Location: login.php', true, 303);
+    exit;
+}
+
 session_start();
 
 require_once __DIR__ . '/../../backend/repositories/venta_dao.php';
+require_once __DIR__ . '/../../backend/repositories/usuario_dao.php';
+
+try {
+    $pdo = require __DIR__ . '/../../backend/config/database/conexion_bd.php';
+    $rol = (new UsuarioDAO($pdo))->consultarRolUsuario($idUsuario);
+} catch (PDOException $e) {
+    error_log('Error al verificar acceso al panel: ' . $e->getCode());
+    http_response_code(500);
+    exit('No se pudo verificar el acceso al panel.');
+}
+
+if (!in_array($rol, ['Administrador', 'Empleado'], true)) {
+    http_response_code(403);
+    exit('No tienes permiso para acceder al panel.');
+}
 
 $ventasDelMes = null;
 try {
-    $pdo = require __DIR__ . '/../../backend/config/database/conexion_bd.php';
+    
     $hoy = new DateTimeImmutable('now', new DateTimeZone('America/Mexico_City'));
 
     $ventasDelMes = (new VentaDAO($pdo))->contarVentasMes(

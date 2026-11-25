@@ -7,6 +7,14 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
     exit('Método no permitido.');
 }
 
+setcookie('autos_access_token', '', [
+    'expires' => time() - 3600,
+    'path' => '/proyecto_final_beta/',
+    'secure' => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
+    'httponly' => true,
+    'samesite' => 'Lax',
+]);
+
 session_start();
 if (isset($_SESSION['id_usuario'])) {
     $_SESSION = [];
@@ -24,5 +32,8 @@ if (isset($_SESSION['id_usuario'])) {
     }
 }
 
-header('Location: ../../../frontend/pages/login.php', true, 303);
+$destino = ($_POST['origen'] ?? null) === 'inicio'
+    ? '../../../index.html'
+    : '../../../frontend/pages/login.php';
+header('Location: ' . $destino, true, 303);
 exit;

@@ -7,9 +7,9 @@
     <meta name="description" content="Autos Amistosos: distribuidor autorizado de autos nuevos. Pruebas de manejo, financiamiento a tu medida, personalización, trámites de placas y seguro, y seminuevos de intercambio.">
     <link rel="icon" type="image/png" href="frontend/images/logo.png">
     <link rel="stylesheet" href="frontend/css/bootstrap-base.css">
-    <link rel="stylesheet" href="frontend/css/landing_page.css">
+    <link rel="stylesheet" href="frontend/css/landing_page.css?v=2">
     <script src="frontend/vendor/bootstrap/bootstrap.bundle.min.js" defer></script>
-    <script src="frontend/js/usuario_sesion.js" defer></script>
+    <script src="frontend/js/usuario_sesion.js?v=2" defer></script>
 </head>
 <body>
 
@@ -21,6 +21,10 @@
                 <span>Autos Amistosos<small>Distribuidor autorizado</small></span>
             </a>
 
+            <button class="nav-toggle" type="button" aria-label="Menú principal" aria-expanded="false" aria-controls="nav-links">
+                <span></span><span></span><span></span>
+            </button>
+
             <ul class="nav-links" id="nav-links">
                 <li><a href="#nuevos">Autos nuevos</a></li>
                 <li><a href="#servicios">Servicios</a></li>
@@ -30,6 +34,15 @@
                 <li><a href="#contacto">Contacto</a></li>
                 <li class="guest-link"><a href="frontend/pages/login.php">Iniciar sesión</a></li>
                 <li class="guest-link"><a href="frontend/pages/registro.php">Crear cuenta</a></li>
+                <li id="cuenta-usuario" hidden>
+                    <div class="nav-account">
+                        <span id="nombre-usuario"></span>
+                        <form method="post" action="backend/scripts/usuarios/usuarios_logout_procesar.php">
+                            <input type="hidden" name="origen" value="inicio">
+                            <button type="submit">Cerrar sesión</button>
+                        </form>
+                    </div>
+                </li>
             </ul>
 
         </div>

@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 
+require_once __DIR__ . '/../../services/jwt_servicio.php';
 require_once __DIR__ . '/../../repositories/usuario_dao.php';
 require_once __DIR__ . '/../../services/usuario_servicio.php';
 
@@ -24,6 +25,20 @@ try {
         $consultaRol->execute([$usuario['ID_Rol']]);
         $rol = $consultaRol->fetchColumn();
 
+        $token = emitirJwt((string) $usuario['ID_User']);
+
+        $cookieEnviada = setcookie('autos_access_token', $token, [
+            'expires' => time() + JWT_DURACION_SEGUNDOS,
+            'path' => '/proyecto_final_beta/',
+            'secure' => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
+            'httponly' => true,
+            'samesite' => 'Lax',
+        ]);
+
+        if (!$cookieEnviada) {
+            throw new RuntimeException('No se pudo enviar la cookie de autenticación.');
+        }
+
         session_regenerate_id(true);
         unset($_SESSION['error_login']);
         $_SESSION['id_usuario'] = $usuario['ID_User'];
@@ -36,6 +51,9 @@ try {
     }
 } catch (PDOException $e) {
     error_log('Error de base de datos al iniciar sesión. Código: ' . $e->getCode());
+    $error = 'No se pudo iniciar sesión. Intenta de nuevo.';
+}catch (RuntimeException $e) {
+    error_log($e->getMessage());
     $error = 'No se pudo iniciar sesión. Intenta de nuevo.';
 }
 

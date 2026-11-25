@@ -196,6 +196,35 @@ section { scroll-margin-top: 90px; }
 .nav-links a:hover { color: var(--gold-dark); }
 .nav-links a:hover::after { width: 100%; }
 
+.nav-account {
+    display: grid;
+    gap: 4px;
+    padding: 8px 14px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--white);
+    color: var(--ink);
+}
+
+.nav-account span {
+    max-width: 12rem;
+    overflow-wrap: anywhere;
+    font-weight: 700;
+}
+
+.nav-account button {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--ink);
+    font-size: .875rem;
+    text-decoration: underline;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.nav-account button:hover { color: var(--gold-dark); }
+
 .nav-cta { display: flex; align-items: center; gap: 14px; }
 
 .nav-cta .nav-test-drive {
@@ -661,10 +690,12 @@ section { scroll-margin-top: 90px; }
         box-shadow: var(--shadow-md);
         transform: translateY(-14px);
         opacity: 0;
+        visibility: hidden;
         pointer-events: none;
         transition: transform .3s var(--ease), opacity .3s var(--ease);
     }
-    .nav-links.open { transform: none; opacity: 1; pointer-events: auto; }
+    .nav-links.open { transform: none; opacity: 1; visibility: visible; pointer-events: auto; }
+    .nav-account { margin-top: 12px; }
     .nav-links a { padding: 14px 0; border-bottom: 1px solid var(--line); }
     .nav-links a::after { display: none; }
     .nav-cta .btn-outline { display: none; }
