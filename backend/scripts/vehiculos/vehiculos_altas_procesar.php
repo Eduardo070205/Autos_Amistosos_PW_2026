@@ -16,6 +16,13 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
     exit('Método no permitido.');
 }
 
+require_once __DIR__ . '/../usuarios/exigir_acceso_web.php';
+
+$pdo = exigirAccesoWeb(
+    ['Administrador', 'Empleado'],
+    '../../../frontend/pages/login.php'
+);
+
 unset($_SESSION['errores_vehiculo'], $_SESSION['datos_vehiculo'], $_SESSION['error_guardado']);
 $_SESSION['insercion_correcta'] = false;
 $entrada = $_POST;
