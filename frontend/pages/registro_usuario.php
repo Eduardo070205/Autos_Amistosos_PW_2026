@@ -1,5 +1,7 @@
 <?php
-require_once __DIR__ . '/../../backend/scripts/usuarios/exigir_administrador.php';
+require_once __DIR__ . '/../../backend/scripts/usuarios/exigir_acceso_web.php';
+
+$pdo = exigirAccesoWeb(['Administrador']);
 
 session_start();
 $claveRegistro = 'registro_panel';
@@ -8,8 +10,8 @@ unset($_SESSION[$claveRegistro]);
 
 $rolesRegistro = [];
 try {
-    $pdo = require __DIR__ . '/../../backend/config/database/conexion_bd.php';
-    exigirAdministrador(new UsuarioDAO($pdo), 'login.php');
+    
+    
     $rolesRegistro = $pdo->query(
         "SELECT Rol FROM roles WHERE Rol IN ('Administrador', 'Empleado', 'Cliente') ORDER BY ID_Rol"
     )->fetchAll(PDO::FETCH_COLUMN);

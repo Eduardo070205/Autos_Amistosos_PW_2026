@@ -129,28 +129,21 @@ function requerirActorApi(PDO $pdo, array $roles): string
         ?? $encabezados['authorization']
         ?? '';
 
-    if ($autorizacion !== '') {
-        if (!preg_match('/\ABearer[ \t]+(\S+)\z/i', $autorizacion, $partes)) {
-            throw new ErrorApi(401, 'Encabezado de autorización inválido.');
-        }
-
-        try {
-            $id = obtenerIdDesdeJwt($partes[1]);
-        } catch (RuntimeException $e) {
-            throw new ErrorApi(500, $e->getMessage());
-        }
-
-        if ($id === null) {
-            throw new ErrorApi(401, 'Token inválido o vencido.');
-        }
-        
-    } else {
-        session_start(['use_strict_mode' => true, 'read_and_close' => true]);
-        $id = $_SESSION['id_usuario'] ?? null;
+    if ($autorizacion === '') {
+        throw new ErrorApi(401, 'Inicia sesión para continuar.');
+    }
+    if (!preg_match('/\ABearer[ \t]+(\S+)\z/i', $autorizacion, $partes)) {
+        throw new ErrorApi(401, 'Encabezado de autorización inválido.');
     }
 
-    if (!is_string($id) || $id === '') {
-        throw new ErrorApi(401, 'Inicia sesión para continuar.');
+    try {
+        $id = obtenerIdDesdeJwt($partes[1]);
+    } catch (RuntimeException $e) {
+        throw new ErrorApi(500, $e->getMessage());
+    }
+
+    if ($id === null) {
+        throw new ErrorApi(401, 'Token inválido o vencido.');
     }
 
     $rol = (new UsuarioDAO($pdo))->consultarRolUsuario($id);

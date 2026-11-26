@@ -24,15 +24,6 @@ ejecutarApi(static function (): array {
         throw new ErrorApi(500, $e->getMessage());
     }
 
-    if (!session_start(['use_strict_mode' => true, 'cookie_httponly' => true,
-        'cookie_secure' => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
-        'cookie_samesite' => 'Lax']) || !session_regenerate_id(true)) {
-        throw new ErrorApi(500, 'No se pudo iniciar la sesión.');
-    }
-    $_SESSION['id_usuario'] = $usuario['ID_User'];
-    $_SESSION['nombre_usuario'] = $usuario['Nombre_User'];
-    session_write_close();
-
     return [[
         'datos' => $usuario + ['Rol' => $rol],
         'access_token' => $token,

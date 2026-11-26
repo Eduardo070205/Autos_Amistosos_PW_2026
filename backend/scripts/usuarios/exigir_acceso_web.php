@@ -4,7 +4,11 @@ declare(strict_types=1);
 require_once __DIR__ . '/../../services/jwt_servicio.php';
 require_once __DIR__ . '/../../repositories/usuario_dao.php';
 
-function exigirAccesoWeb(array $roles, string $urlLogin = 'login.php'): PDO
+function exigirAccesoWeb(
+    array $roles,
+    string $urlLogin = 'login.php',
+    ?string &$idUsuario = null
+): PDO
 {
     $token = $_COOKIE['autos_access_token'] ?? null;
 

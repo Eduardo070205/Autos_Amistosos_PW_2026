@@ -40,9 +40,7 @@ try {
         }
 
         session_regenerate_id(true);
-        unset($_SESSION['error_login']);
-        $_SESSION['id_usuario'] = $usuario['ID_User'];
-        $_SESSION['nombre_usuario'] = $usuario['Nombre_User'];
+        unset($_SESSION['error_login'], $_SESSION['id_usuario'], $_SESSION['nombre_usuario']);
 
         $destino = in_array($rol, ['Administrador', 'Empleado'], true)
             ? '../../../frontend/pages/panel.php'

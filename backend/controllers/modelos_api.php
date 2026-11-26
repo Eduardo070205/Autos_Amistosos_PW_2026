@@ -2,6 +2,8 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../repositories/modelo_dao.php';
+require_once __DIR__ . '/../repositories/usuario_dao.php';
+require_once __DIR__ . '/api_http.php';
 header('Content-Type: application/json; charset=utf-8');
 function responder(array $datos, int $codigo = 200): void
 {
@@ -35,6 +37,19 @@ function normalizarDatosModelo(array $entrada): array
 }
 
 $metodo = $_SERVER['REQUEST_METHOD'] ?? '';
+if (in_array($metodo, ['POST', 'PUT', 'PATCH', 'DELETE'], true)) {
+    header('Cache-Control: no-store');
+    try {
+        $pdo = require __DIR__ . '/../config/database/conexion_bd.php';
+        requerirActorApi($pdo, ['Administrador', 'Empleado']);
+    } catch (ErrorApi $e) {
+        responder(['error' => $e->getMessage()], $e->getCode());
+    } catch (PDOException $e) {
+        error_log('Error al verificar acceso a modelos: ' . $e->getCode());
+        responder(['error' => 'No se pudo verificar el acceso a modelos.'], 500);
+    }
+}
+
 $camposVacios = array_fill_keys(array_keys(CAMPOS_MODELO), '');
 if ($metodo === 'POST') {
     require_once __DIR__ . '/../validaciones/validar_modelo.php';
@@ -53,7 +68,6 @@ if ($metodo === 'POST') {
     }
 
     try {
-        $pdo = require __DIR__ . '/../config/database/conexion_bd.php';
         $servicio = new ModeloServicio(new ModeloDAO($pdo));
         $modelo = $servicio->registrarModelo($datos);
     } catch (PDOException $e) {
@@ -104,9 +118,7 @@ if ($metodo === 'PUT' || $metodo === 'PATCH') {
         responder(['cambio' => false, 'error' => 'Hay campos inválidos.', 'errores' => $errores], 400);
     }
 
-    $pdo = null;
     try {
-        $pdo = require __DIR__ . '/../config/database/conexion_bd.php';
         $dao = new ModeloDAO($pdo);
         $servicio = new ModeloServicio($dao);
         $pdo->beginTransaction();
@@ -125,7 +137,7 @@ if ($metodo === 'PUT' || $metodo === 'PATCH') {
         }
         $pdo->commit();
     } catch (PDOException $e) {
-        if ($pdo !== null && $pdo->inTransaction()) {
+        if ($pdo->inTransaction()) {
             $pdo->rollBack();
         }
         if ((int) ($e->errorInfo[1] ?? 0) === 1062) {
@@ -145,7 +157,6 @@ if ($metodo === 'DELETE') {
 
     require_once __DIR__ . '/../services/modelo_servicio.php';
     try {
-        $pdo = require __DIR__ . '/../config/database/conexion_bd.php';
         $servicio = new ModeloServicio(new ModeloDAO($pdo));
         if (!$servicio->eliminarModelo($id)) {
             responder(['baja' => false, 'error' => 'El modelo no existe.'], 404);

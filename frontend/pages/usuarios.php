@@ -1,13 +1,15 @@
 <?php
 declare(strict_types=1);
 
-require_once __DIR__ . '/../../backend/scripts/usuarios/exigir_administrador.php';
+
+require_once __DIR__ . '/../../backend/scripts/usuarios/exigir_acceso_web.php';
+
+$pdo = exigirAccesoWeb(['Administrador'], 'login.php', $idUsuario);
 
 session_start();
 try {
-    $pdo = require __DIR__ . '/../../backend/config/database/conexion_bd.php';
+    
     $dao = new UsuarioDAO($pdo);
-    exigirAdministrador($dao, 'login.php');
     $usuarios = $dao->consultarUsuariosConRol();
 } catch (PDOException $e) {
     error_log('Error al consultar usuarios: ' . $e->getCode());
@@ -71,7 +73,7 @@ function escaparUsuario(string $valor): string
                                     <td><?= escaparUsuario($usuario['Nombre_User'] ?? '—') ?></td>
                                     <td><?= escaparUsuario($usuario['Rol'] ?? 'Sin rol') ?></td>
                                     <td>
-                                        <?php if ($id === $_SESSION['id_usuario']): ?>
+                                        <?php if ($id === $idUsuario): ?>
                                             Sesión actual
                                         <?php else: ?>
                                             <form method="post" action="../../backend/scripts/usuarios/usuarios_bajas_procesar.php"

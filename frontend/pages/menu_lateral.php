@@ -2,9 +2,31 @@
 $moduloActivo = $moduloActivo ?? null;
 require_once __DIR__ . '/../../backend/repositories/vehiculo_dao.php';
 require_once __DIR__ . '/../../backend/repositories/usuario_dao.php';
+require_once __DIR__ . '/../../backend/services/jwt_servicio.php';
 
-$idSesionMenu = $_SESSION['id_usuario'] ?? null;
-$nombreSesionMenu = trim($_SESSION['nombre_usuario'] ?? '');
+$idSesionMenu = null;
+$nombreSesionMenu = '';
+$puedeAdministrarUsuarios = false;
+$vehiculosDisponibles = null;
+$tokenMenu = $_COOKIE['autos_access_token'] ?? null;
+
+try {
+    $conexionMenu = $pdo ?? require __DIR__ . '/../../backend/config/database/conexion_bd.php';
+    if (is_string($tokenMenu) && $tokenMenu !== '') {
+        $idSesionMenu = obtenerIdDesdeJwt($tokenMenu);
+        if ($idSesionMenu !== null) {
+            $usuariosMenu = new UsuarioDAO($conexionMenu);
+            $usuarioMenu = $usuariosMenu->consultarUsuarioID($idSesionMenu);
+            $nombreSesionMenu = trim($usuarioMenu['Nombre_User'] ?? '');
+            $puedeAdministrarUsuarios = $usuariosMenu->esAdministrador($idSesionMenu);
+        }
+    }
+
+    $vehiculosDisponibles = (new VehiculoDAO($conexionMenu))->contarVehiculosDisponibles();
+} catch (RuntimeException $e) {
+    error_log('Error al cargar el menú lateral: ' . $e->getMessage());
+}
+
 $nombreSesionHtml = htmlspecialchars($nombreSesionMenu, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 $inicialesSesionHtml = '';
 if ($nombreSesionMenu !== '') {
@@ -14,18 +36,6 @@ if ($nombreSesionMenu !== '') {
         $iniciales .= mb_substr($partesNombre[count($partesNombre) - 1], 0, 1, 'UTF-8');
     }
     $inicialesSesionHtml = htmlspecialchars(mb_strtoupper($iniciales, 'UTF-8'), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-}
-$puedeAdministrarUsuarios = $moduloActivo === 'usuarios';
-
-try {
-    $conexionMenu = $pdo ?? require __DIR__ . '/../../backend/config/database/conexion_bd.php';
-    if (!$puedeAdministrarUsuarios && is_string($idSesionMenu)) {
-        $puedeAdministrarUsuarios = (new UsuarioDAO($conexionMenu))->esAdministrador($idSesionMenu);
-    }
-    $vehiculosDisponibles = (new VehiculoDAO($conexionMenu))->contarVehiculosDisponibles();
-} catch (PDOException $e) {
-    error_log('Error al contar vehículos disponibles: ' . $e->getMessage());
-    $vehiculosDisponibles = null;
 }
 ?>
         <aside class="sidebar" id="sidebar">

@@ -15,8 +15,7 @@ setcookie('autos_access_token', '', [
     'samesite' => 'Lax',
 ]);
 
-session_start();
-if (isset($_SESSION['id_usuario'])) {
+if (isset($_COOKIE[session_name()]) && session_start()) {
     $_SESSION = [];
     session_destroy();
     if (ini_get('session.use_cookies')) {
