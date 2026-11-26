@@ -15,6 +15,7 @@ unset($_SESSION[$claveRegistro]);
     <link rel="stylesheet" href="../css/bootstrap-base.css">
     <link rel="stylesheet" href="../css/registro.css">
     <script src="../vendor/bootstrap/bootstrap.bundle.min.js" defer></script>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 <body>
 
@@ -83,6 +84,8 @@ unset($_SESSION[$claveRegistro]);
                         </div>
                     </div>
 
+                    <div class="g-recaptcha" data-sitekey="6LeY9zIuAAAAAARJgaJFGt9bn7LgJ6uChnCdbGXu"></div>
+                    <br>
                     <button type="submit" class="btn btn-primary">Crear cuenta</button>
                 </form>
 

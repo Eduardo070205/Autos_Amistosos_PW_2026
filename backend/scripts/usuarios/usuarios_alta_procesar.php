@@ -4,6 +4,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/../../repositories/usuario_dao.php';
 require_once __DIR__ . '/../../services/usuario_servicio.php';
 require_once __DIR__ . '/../../validaciones/validar_usuario.php';
+require_once __DIR__ . '/../../validaciones/validar_recaptcha.php';
 require_once __DIR__ . '/exigir_acceso_web.php';
 
 if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
@@ -37,7 +38,11 @@ if ($desdePanel) {
 $errores = validarUsuario($datos, $desdePanel);
 $error = null;
 
-if ($errores === []) {
+if (!$desdePanel && $errores === []) {
+    $error = validarRecaptcha($_POST['g-recaptcha-response'] ?? null);
+}
+
+if ($errores === [] && $error === null) {
     try {
         $pdo ??= require __DIR__ . '/../../config/database/conexion_bd.php';
         $dao = new UsuarioDAO($pdo);

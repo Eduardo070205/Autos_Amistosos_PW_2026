@@ -16,6 +16,7 @@ unset($_SESSION['error_login']);
     <link rel="stylesheet" href="../css/bootstrap-base.css">
     <link rel="stylesheet" href="../css/login.css">
     <script src="../vendor/bootstrap/bootstrap.bundle.min.js" defer></script>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 <body>
 
@@ -74,6 +75,9 @@ unset($_SESSION['error_login']);
                     <div class="form-aux">
                         <a href="recuperar.html">¿Olvidaste tu contraseña?</a>
                     </div>
+
+                    <div class="g-recaptcha" data-sitekey="6LeY9zIuAAAAAARJgaJFGt9bn7LgJ6uChnCdbGXu"></div>
+                    <br>
 
                     <button type="submit" class="btn btn-primary">Ingresar</button>
                 </form>

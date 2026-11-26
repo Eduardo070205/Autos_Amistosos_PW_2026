@@ -4,6 +4,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/../../services/jwt_servicio.php';
 require_once __DIR__ . '/../../repositories/usuario_dao.php';
 require_once __DIR__ . '/../../services/usuario_servicio.php';
+require_once __DIR__ . '/../../validaciones/validar_recaptcha.php';
 
 if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
     header('Allow: POST');
@@ -14,6 +15,13 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
 session_start();
 
 $destino = '../../../frontend/pages/login.php';
+$errorCaptcha = validarRecaptcha($_POST['g-recaptcha-response'] ?? null);
+if ($errorCaptcha !== null) {
+    $_SESSION['error_login'] = $errorCaptcha;
+    header('Location: ' . $destino, true, 303);
+    exit;
+}
+
 $error = 'El correo o la contraseña son incorrectos.';
 try {
     $pdo = require __DIR__ . '/../../config/database/conexion_bd.php';
